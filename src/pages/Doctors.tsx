@@ -1,31 +1,11 @@
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Users, Mail, Phone } from "lucide-react";
-import { useState } from "react";
-
-interface Doctor {
-  id: string;
-  full_name: string;
-  position: string;
-  image_url: string | null;
-  experience: string | null;
-  description: string | null;
-  email: string | null;
-  phone: string | null;
-}
+import { Users } from "lucide-react";
 
 const Doctors = () => {
-  const [selected, setSelected] = useState<Doctor | null>(null);
-
   const { data: doctors, isLoading } = useQuery({
     queryKey: ["doctors"],
     queryFn: async () => {
@@ -34,7 +14,7 @@ const Doctors = () => {
         .select("*")
         .order("display_order");
       if (error) throw error;
-      return data as Doctor[];
+      return data;
     },
   });
 
@@ -68,23 +48,21 @@ const Doctors = () => {
           ) : doctors && doctors.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {doctors.map((doc) => (
-                <Card
-                  key={doc.id}
-                  className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => setSelected(doc)}
-                >
-                  <div className="aspect-[3/4] bg-muted flex items-center justify-center">
-                    {doc.image_url ? (
-                      <img src={doc.image_url} alt={doc.full_name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Users className="h-20 w-20 text-muted-foreground/20" />
-                    )}
-                  </div>
-                  <CardContent className="p-5 text-center">
-                    <h3 className="font-semibold text-lg">{doc.full_name}</h3>
-                    <p className="text-sm text-muted-foreground">{doc.position}</p>
-                  </CardContent>
-                </Card>
+                <Link key={doc.id} to={`/doctors/${doc.id}`}>
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="aspect-[3/4] bg-muted flex items-center justify-center">
+                      {doc.image_url ? (
+                        <img src={doc.image_url} alt={doc.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Users className="h-20 w-20 text-muted-foreground/20" />
+                      )}
+                    </div>
+                    <CardContent className="p-5 text-center">
+                      <h3 className="font-semibold text-lg">{doc.full_name}</h3>
+                      <p className="text-sm text-muted-foreground">{doc.position}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (
@@ -95,53 +73,6 @@ const Doctors = () => {
           )}
         </div>
       </section>
-
-      {/* Doctor Detail Modal */}
-      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent className="sm:max-w-lg">
-          {selected && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="font-display text-xl">{selected.full_name}</DialogTitle>
-                <DialogDescription>{selected.position}</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                {selected.image_url && (
-                  <img
-                    src={selected.image_url}
-                    alt={selected.full_name}
-                    className="w-full max-h-64 object-cover rounded-lg"
-                  />
-                )}
-                {selected.experience && (
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">Experience</h4>
-                    <p className="text-sm text-muted-foreground">{selected.experience}</p>
-                  </div>
-                )}
-                {selected.description && (
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">About</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{selected.description}</p>
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-4 text-sm">
-                  {selected.email && (
-                    <a href={`mailto:${selected.email}`} className="flex items-center gap-1 text-primary hover:underline">
-                      <Mail className="h-4 w-4" /> {selected.email}
-                    </a>
-                  )}
-                  {selected.phone && (
-                    <a href={`tel:${selected.phone}`} className="flex items-center gap-1 text-primary hover:underline">
-                      <Phone className="h-4 w-4" /> {selected.phone}
-                    </a>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </Layout>
   );
 };
