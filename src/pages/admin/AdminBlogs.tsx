@@ -30,6 +30,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 interface BlogForm {
   title: string;
@@ -83,7 +84,8 @@ const AdminBlogs = () => {
         publish_date: data.status === "published" ? new Date().toISOString().split("T")[0] : null,
       };
       if (data.id) {
-        const { error } = await supabase.from("blogs").update(payload).eq("id", data.id);
+        const { id, ...rest } = payload as any;
+        const { error } = await supabase.from("blogs").update(rest).eq("id", data.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("blogs").insert(payload);
@@ -92,6 +94,8 @@ const AdminBlogs = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-blogs"] });
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      queryClient.invalidateQueries({ queryKey: ["blogs-preview"] });
       toast.success(editingId ? "Blog updated!" : "Blog created!");
       closeDialog();
     },
@@ -105,6 +109,8 @@ const AdminBlogs = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-blogs"] });
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      queryClient.invalidateQueries({ queryKey: ["blogs-preview"] });
       toast.success("Blog deleted");
     },
     onError: (e: any) => toast.error(e.message),
@@ -215,7 +221,7 @@ const AdminBlogs = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit Blog Post" : "Create Blog Post"}</DialogTitle>
           </DialogHeader>
@@ -279,11 +285,9 @@ const AdminBlogs = () => {
             </div>
             <div className="space-y-2">
               <Label>Content *</Label>
-              <Textarea
-                value={form.content}
-                onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                rows={8}
-                required
+              <RichTextEditor
+                content={form.content}
+                onChange={(html) => setForm((f) => ({ ...f, content: html }))}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">

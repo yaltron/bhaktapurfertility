@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, Phone } from "lucide-react";
+import { CLINIC } from "@/lib/constants";
 
 const Doctors = () => {
   const { data: doctors, isLoading } = useQuery({
@@ -22,11 +24,18 @@ const Doctors = () => {
     <Layout>
       <section className="bg-secondary py-16 md:py-24">
         <div className="container">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Our Doctors</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Meet our team of experienced fertility specialists and healthcare professionals.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Our Doctors</h1>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Meet our team of experienced fertility specialists and healthcare professionals.
+              </p>
+            </div>
+            <Button asChild className="self-start md:self-auto">
+              <a href={`tel:${CLINIC.phones[0]}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call Now
+              </a>
+            </Button>
           </div>
         </div>
       </section>
@@ -68,7 +77,7 @@ const Doctors = () => {
           ) : (
             <div className="text-center py-12">
               <Users className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">Our doctor profiles are being updated. Please check back soon.</p>
+              <p className="text-muted-foreground">No doctors listed yet. Please check back soon.</p>
             </div>
           )}
         </div>

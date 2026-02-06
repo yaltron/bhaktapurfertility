@@ -60,11 +60,18 @@ const Contact = () => {
     <Layout>
       <section className="bg-secondary py-16 md:py-24">
         <div className="container">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Contact Us</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Have questions or want to schedule a visit? Get in touch with us.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Contact Us</h1>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Have questions or want to schedule a visit? Get in touch with us.
+              </p>
+            </div>
+            <Button asChild className="self-start md:self-auto">
+              <a href={`tel:${CLINIC.phones[0]}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call Now
+              </a>
+            </Button>
           </div>
         </div>
       </section>

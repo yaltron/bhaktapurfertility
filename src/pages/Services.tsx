@@ -1,19 +1,27 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
-import { SERVICES } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
+import { CLINIC, SERVICES } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 
 const Services = () => {
   return (
     <Layout>
       <section className="bg-secondary py-16 md:py-24">
         <div className="container">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Our Services</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              We offer a comprehensive range of fertility treatments and reproductive health services to help you on your journey to parenthood.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Our Services</h1>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                We offer a comprehensive range of fertility treatments and reproductive health services to help you on your journey to parenthood.
+              </p>
+            </div>
+            <Button asChild className="self-start md:self-auto">
+              <a href={`tel:${CLINIC.phones[0]}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call Now
+              </a>
+            </Button>
           </div>
         </div>
       </section>

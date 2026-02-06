@@ -77,6 +77,8 @@ const AdminDoctors = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors-preview"] });
       toast.success(editingId ? "Doctor updated!" : "Doctor added!");
       closeDialog();
     },
@@ -90,6 +92,8 @@ const AdminDoctors = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors"] });
+      queryClient.invalidateQueries({ queryKey: ["doctors-preview"] });
       toast.success("Doctor removed");
     },
     onError: (e: any) => toast.error(e.message),

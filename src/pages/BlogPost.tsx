@@ -95,9 +95,10 @@ const BlogPost = () => {
             />
           )}
 
-          <div className="prose prose-sm md:prose-base max-w-none text-foreground/90 leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </div>
+          <div
+            className="blog-content prose prose-sm md:prose-base max-w-none text-foreground/90 leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: post.content || "" }}
+          />
 
           {/* Share buttons */}
           <div className="mt-12 pt-8 border-t">
