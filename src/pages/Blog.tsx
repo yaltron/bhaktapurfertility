@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, BookOpen } from "lucide-react";
+import { Search, BookOpen, Phone } from "lucide-react";
+import { CLINIC } from "@/lib/constants";
 
 const Blog = () => {
   const [search, setSearch] = useState("");
@@ -33,11 +35,18 @@ const Blog = () => {
     <Layout>
       <section className="bg-secondary py-16 md:py-24">
         <div className="container">
-          <div className="max-w-3xl">
-            <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Insights</h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Educational articles and updates on fertility, reproductive health, and women&apos;s wellness.
-            </p>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="max-w-3xl">
+              <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Insights</h1>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Educational articles and updates on fertility, reproductive health, and women&apos;s wellness.
+              </p>
+            </div>
+            <Button asChild className="self-start md:self-auto">
+              <a href={`tel:${CLINIC.phones[0]}`}>
+                <Phone className="h-4 w-4 mr-2" /> Call Now
+              </a>
+            </Button>
           </div>
           <div className="mt-8 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Phone, ArrowRight, Shield, Heart, Users, Award, Clock, Stethoscope } from "lucide-react";
+import { Phone, ArrowRight, Shield, Heart, Users, Award, Clock, Stethoscope, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
@@ -136,13 +136,13 @@ const Index = () => {
       </section>
 
       {/* Doctors Preview */}
-      {doctors && doctors.length > 0 && (
-        <section className="py-16 md:py-24">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Our Specialists</h2>
-              <p className="text-muted-foreground">Meet our experienced fertility experts.</p>
-            </div>
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Our Specialists</h2>
+            <p className="text-muted-foreground">Meet our experienced fertility experts.</p>
+          </div>
+          {doctors && doctors.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {doctors.map((doc) => (
                 <Link key={doc.id} to={`/doctors/${doc.id}`}>
@@ -162,31 +162,40 @@ const Index = () => {
                 </Link>
               ))}
             </div>
-            <div className="text-center mt-8">
-              <Button variant="outline" asChild>
-                <Link to="/doctors">
-                  View All Doctors <ArrowRight className="h-4 w-4 ml-1" />
-                </Link>
-              </Button>
+          ) : (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Our specialist profiles are coming soon.</p>
             </div>
+          )}
+          <div className="text-center mt-8">
+            <Button variant="outline" asChild>
+              <Link to="/doctors">
+                View All Doctors <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Blog Preview */}
-      {blogs && blogs.length > 0 && (
-        <section className="py-16 md:py-24 bg-secondary">
-          <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Latest Insights</h2>
-              <p className="text-muted-foreground">Helpful articles on fertility and women&apos;s health.</p>
-            </div>
+      <section className="py-16 md:py-24 bg-secondary">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">Latest Insights</h2>
+            <p className="text-muted-foreground">Helpful articles on fertility and women&apos;s health.</p>
+          </div>
+          {blogs && blogs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {blogs.map((post) => (
                 <Card key={post.id} className="overflow-hidden hover:shadow-md transition-shadow">
                   <div className="aspect-video bg-muted">
-                    {post.cover_image_url && (
+                    {post.cover_image_url ? (
                       <img src={post.cover_image_url} alt={post.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <BookOpen className="h-10 w-10 text-muted-foreground/20" />
+                      </div>
                     )}
                   </div>
                   <CardContent className="p-5">
@@ -204,14 +213,19 @@ const Index = () => {
                 </Card>
               ))}
             </div>
-            <div className="text-center mt-8">
-              <Button variant="outline" asChild>
-                <Link to="/insights">All Articles <ArrowRight className="h-4 w-4 ml-1" /></Link>
-              </Button>
+          ) : (
+            <div className="text-center py-8">
+              <BookOpen className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Articles coming soon. Stay tuned!</p>
             </div>
+          )}
+          <div className="text-center mt-8">
+            <Button variant="outline" asChild>
+              <Link to="/insights">All Articles <ArrowRight className="h-4 w-4 ml-1" /></Link>
+            </Button>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Contact Strip */}
       <section className="py-12 bg-primary text-primary-foreground">
