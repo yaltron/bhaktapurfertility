@@ -42,7 +42,7 @@ const Blog = () => {
                 Educational articles and updates on fertility, reproductive health, and women&apos;s wellness.
               </p>
             </div>
-            <Button asChild className="self-start md:self-auto">
+            <Button asChild size="lg" className="self-start md:self-auto">
               <a href={`tel:${CLINIC.phones[0]}`}>
                 <Phone className="h-4 w-4 mr-2" /> Call Now
               </a>

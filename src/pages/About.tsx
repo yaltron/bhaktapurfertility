@@ -31,7 +31,7 @@ const About = () => {
                 {CLINIC.name} is a leading fertility and women&apos;s wellness center located in {CLINIC.address}. We are dedicated to helping families achieve their dream of parenthood through advanced reproductive technologies and compassionate care.
               </p>
             </div>
-            <Button asChild className="self-start md:self-auto">
+            <Button asChild size="lg" className="self-start md:self-auto">
               <a href={`tel:${CLINIC.phones[0]}`}>
                 <Phone className="h-4 w-4 mr-2" /> Call Now
               </a>

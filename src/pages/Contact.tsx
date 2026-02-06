@@ -67,7 +67,7 @@ const Contact = () => {
                 Have questions or want to schedule a visit? Get in touch with us.
               </p>
             </div>
-            <Button asChild className="self-start md:self-auto">
+            <Button asChild size="lg" className="self-start md:self-auto">
               <a href={`tel:${CLINIC.phones[0]}`}>
                 <Phone className="h-4 w-4 mr-2" /> Call Now
               </a>

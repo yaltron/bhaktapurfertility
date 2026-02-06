@@ -19,9 +19,19 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (!authLoading && user && isAdmin) {
+      toast.success("Welcome back!");
       navigate("/admin", { replace: true });
     }
   }, [user, isAdmin, authLoading, navigate]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (user && !isAdmin) {
+      supabase.auth.signOut();
+      toast.error("Access denied. Admin privileges required.");
+      setLoading(false);
+    }
+  }, [user, isAdmin, authLoading]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,29 +39,9 @@ const AdminLogin = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-
-      // Check admin role
-      const { data: { user: loggedUser } } = await supabase.auth.getUser();
-      if (!loggedUser) throw new Error("No user");
-
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", loggedUser.id)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (!roleData) {
-        await supabase.auth.signOut();
-        toast.error("Access denied. Admin privileges required.");
-        return;
-      }
-
-      toast.success("Welcome back!");
-      navigate("/admin", { replace: true });
+      // Auth context handles admin check & navigation via useEffect above
     } catch (err: any) {
       toast.error(err.message || "Login failed");
-    } finally {
       setLoading(false);
     }
   };
