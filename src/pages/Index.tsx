@@ -68,7 +68,7 @@ const Index = () => {
               >
                 Book Appointment
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Button size="lg" variant="outline" className="border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20" asChild>
                 <a href={`tel:${CLINIC.phones[0]}`}>
                   <Phone className="h-4 w-4 mr-2" /> Call Now
                 </a>
@@ -89,13 +89,15 @@ const Index = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {SERVICES.slice(0, 5).map((s) => (
-              <Card key={s.shortName} className="group hover:shadow-md transition-shadow border-border/60">
-                <CardContent className="p-5 text-center">
-                  <div className="text-3xl mb-3">{s.icon}</div>
-                  <h3 className="font-semibold text-sm mb-1">{s.shortName}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
-                </CardContent>
-              </Card>
+              <Link key={s.slug} to={`/services/${s.slug}`}>
+                <Card className="group hover:shadow-md transition-shadow border-border/60 h-full">
+                  <CardContent className="p-5 text-center">
+                    <div className="text-3xl mb-3">{s.icon}</div>
+                    <h3 className="font-semibold text-sm mb-1">{s.shortName}</h3>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
           <div className="text-center mt-8">
@@ -143,19 +145,21 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
               {doctors.map((doc) => (
-                <Card key={doc.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-[3/4] bg-muted flex items-center justify-center">
-                    {doc.image_url ? (
-                      <img src={doc.image_url} alt={doc.full_name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Users className="h-16 w-16 text-muted-foreground/30" />
-                    )}
-                  </div>
-                  <CardContent className="p-4 text-center">
-                    <h3 className="font-semibold">{doc.full_name}</h3>
-                    <p className="text-sm text-muted-foreground">{doc.position}</p>
-                  </CardContent>
-                </Card>
+                <Link key={doc.id} to={`/doctors/${doc.id}`}>
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="aspect-[3/4] bg-muted flex items-center justify-center">
+                      {doc.image_url ? (
+                        <img src={doc.image_url} alt={doc.full_name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Users className="h-16 w-16 text-muted-foreground/30" />
+                      )}
+                    </div>
+                    <CardContent className="p-4 text-center">
+                      <h3 className="font-semibold">{doc.full_name}</h3>
+                      <p className="text-sm text-muted-foreground">{doc.position}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
             <div className="text-center mt-8">
@@ -221,7 +225,7 @@ const Index = () => {
               <Button variant="secondary" size="lg" onClick={() => setAppointmentOpen(true)}>
                 Book Appointment
               </Button>
-              <Button variant="outline" size="lg" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" asChild>
+              <Button variant="outline" size="lg" className="border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20" asChild>
                 <a href={`tel:${CLINIC.phones[0]}`}>
                   <Phone className="h-4 w-4 mr-2" /> {CLINIC.phones[0]}
                 </a>

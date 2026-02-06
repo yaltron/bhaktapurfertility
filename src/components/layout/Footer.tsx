@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { CLINIC, NAV_LINKS } from "@/lib/constants";
+import { CLINIC, NAV_LINKS, SERVICES } from "@/lib/constants";
 
 export function Footer() {
   return (
@@ -42,11 +42,16 @@ export function Footer() {
               Key Services
             </h4>
             <ul className="space-y-2 text-sm text-background/70">
-              <li>In Vitro Fertilization (IVF)</li>
-              <li>ICSI Treatment</li>
-              <li>IUI Treatment</li>
-              <li>Fertility Preservation</li>
-              <li>Ovulation Induction</li>
+              {SERVICES.slice(0, 5).map((s) => (
+                <li key={s.slug}>
+                  <Link
+                    to={`/services/${s.slug}`}
+                    className="hover:text-background transition-colors"
+                  >
+                    {s.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
