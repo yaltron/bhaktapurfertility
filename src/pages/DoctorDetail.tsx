@@ -70,11 +70,11 @@ const DoctorDetail = () => {
 
   return (
     <Layout>
-      <section className="bg-secondary py-16 md:py-24">
+      <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link
             to="/doctors"
-            className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
+            className="inline-flex items-center gap-1 text-primary-foreground/70 hover:text-primary-foreground text-sm mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back to Doctors
           </Link>
@@ -98,19 +98,19 @@ const DoctorDetail = () => {
               <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
                 {doctor.full_name}
               </h1>
-              <p className="text-lg text-primary font-medium mb-4">{doctor.position}</p>
+              <p className="text-lg text-primary-foreground/80 font-medium mb-4">{doctor.position}</p>
 
               {doctor.experience && (
                 <div className="mb-4">
-                  <h3 className="font-semibold text-sm mb-1">Experience</h3>
-                  <p className="text-muted-foreground">{doctor.experience}</p>
+                  <h3 className="font-semibold text-sm mb-1 text-primary-foreground/90">Experience</h3>
+                  <p className="text-primary-foreground/70">{doctor.experience}</p>
                 </div>
               )}
 
               {doctor.description && (
                 <div className="mb-6">
-                  <h3 className="font-semibold text-sm mb-1">About</h3>
-                  <p className="text-muted-foreground leading-relaxed">{doctor.description}</p>
+                  <h3 className="font-semibold text-sm mb-1 text-primary-foreground/90">About</h3>
+                  <p className="text-primary-foreground/70 leading-relaxed">{doctor.description}</p>
                 </div>
               )}
 
@@ -118,7 +118,7 @@ const DoctorDetail = () => {
                 {doctor.email && (
                   <a
                     href={`mailto:${doctor.email}`}
-                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline"
                   >
                     <Mail className="h-4 w-4" /> {doctor.email}
                   </a>
@@ -126,7 +126,7 @@ const DoctorDetail = () => {
                 {doctor.phone && (
                   <a
                     href={`tel:${doctor.phone}`}
-                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                    className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline"
                   >
                     <Phone className="h-4 w-4" /> {doctor.phone}
                   </a>
