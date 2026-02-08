@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,10 +13,19 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loginAttempted, setLoginAttempted] = useState(false);
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const mountedRef = useRef(true);
+  const hasTriedLogin = useRef(false);
 
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Redirect admins, reject non-admins (only after auth finishes loading AND user actively logged in)
   useEffect(() => {
     if (authLoading) return;
 
@@ -25,31 +34,37 @@ const AdminLogin = () => {
       return;
     }
 
-    // Only show "access denied" after the user actively tried to log in
-    if (user && !isAdmin && loginAttempted) {
+    if (user && !isAdmin && hasTriedLogin.current) {
+      hasTriedLogin.current = false;
       supabase.auth.signOut();
       toast.error("Access denied. Admin privileges required.");
-      setLoading(false);
-      setLoginAttempted(false);
+      if (mountedRef.current) setLoading(false);
     }
-  }, [user, isAdmin, authLoading, loginAttempted, navigate]);
+  }, [user, isAdmin, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setLoginAttempted(true);
+    hasTriedLogin.current = true;
+
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      // Auth context handles admin check & navigation via useEffect above
+      // useAuth handles admin check + the useEffect above handles navigation
     } catch (err: any) {
-      // Ignore abort errors caused by React Strict Mode double-mount
-      if (err?.name === "AbortError" || err?.message?.includes("abort")) {
+      // Silently ignore abort errors (React Strict Mode double-mount)
+      if (
+        err?.name === "AbortError" ||
+        err?.message?.includes("abort") ||
+        err?.message?.includes("signal")
+      ) {
         return;
       }
-      toast.error(err.message || "Login failed");
-      setLoading(false);
-      setLoginAttempted(false);
+      if (mountedRef.current) {
+        toast.error(err.message || "Login failed");
+        setLoading(false);
+        hasTriedLogin.current = false;
+      }
     }
   };
 
