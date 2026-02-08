@@ -33,28 +33,28 @@ const Blog = () => {
 
   return (
     <Layout>
-      <section className="bg-secondary py-16 md:py-24">
+      <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Insights</h1>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-primary-foreground/80 leading-relaxed">
                 Educational articles and updates on fertility, reproductive health, and women&apos;s wellness.
               </p>
             </div>
-            <Button asChild size="lg" className="self-start md:self-auto">
+            <Button asChild size="lg" variant="outline" className="self-start md:self-auto border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
               <a href={`tel:${CLINIC.phones[0]}`}>
                 <Phone className="h-4 w-4 mr-2" /> Call Now
               </a>
             </Button>
           </div>
           <div className="mt-8 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary-foreground/60" />
             <Input
               placeholder="Search articles..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-primary-foreground/10 border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50"
             />
           </div>
         </div>

@@ -22,16 +22,16 @@ const About = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-secondary py-16 md:py-24">
+      <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">About Us</h1>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-lg text-primary-foreground/80 leading-relaxed">
                 {CLINIC.name} is a leading fertility and women&apos;s wellness center located in {CLINIC.address}. We are dedicated to helping families achieve their dream of parenthood through advanced reproductive technologies and compassionate care.
               </p>
             </div>
-            <Button asChild size="lg" className="self-start md:self-auto">
+            <Button asChild size="lg" variant="outline" className="self-start md:self-auto border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
               <a href={`tel:${CLINIC.phones[0]}`}>
                 <Phone className="h-4 w-4 mr-2" /> Call Now
               </a>
