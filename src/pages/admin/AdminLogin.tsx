@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,41 +8,48 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { CLINIC } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginAttempted, setLoginAttempted] = useState(false);
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && user && isAdmin) {
-      toast.success("Welcome back!");
-      navigate("/admin", { replace: true });
-    }
-  }, [user, isAdmin, authLoading, navigate]);
-
-  useEffect(() => {
     if (authLoading) return;
-    if (user && !isAdmin) {
+
+    if (user && isAdmin) {
+      navigate("/admin", { replace: true });
+      return;
+    }
+
+    // Only show "access denied" after the user actively tried to log in
+    if (user && !isAdmin && loginAttempted) {
       supabase.auth.signOut();
       toast.error("Access denied. Admin privileges required.");
       setLoading(false);
+      setLoginAttempted(false);
     }
-  }, [user, isAdmin, authLoading]);
+  }, [user, isAdmin, authLoading, loginAttempted, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setLoginAttempted(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       // Auth context handles admin check & navigation via useEffect above
     } catch (err: any) {
+      // Ignore abort errors caused by React Strict Mode double-mount
+      if (err?.name === "AbortError" || err?.message?.includes("abort")) {
+        return;
+      }
       toast.error(err.message || "Login failed");
       setLoading(false);
+      setLoginAttempted(false);
     }
   };
 

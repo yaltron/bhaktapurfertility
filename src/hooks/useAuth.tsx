@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
 
   const checkAdmin = async (userId: string) => {
     const { data } = await supabase
@@ -36,10 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    mountedRef.current = true;
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mountedRef.current) return;
       setSession(session);
       if (session?.user) {
         const admin = await checkAdmin(session.user.id);
+        if (!mountedRef.current) return;
         setIsAdmin(admin);
       }
       setLoading(false);
@@ -47,10 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        setLoading(true);
+        if (!mountedRef.current) return;
         setSession(session);
         if (session?.user) {
+          setLoading(true);
           const admin = await checkAdmin(session.user.id);
+          if (!mountedRef.current) return;
           setIsAdmin(admin);
         } else {
           setIsAdmin(false);
@@ -59,7 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mountedRef.current = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
