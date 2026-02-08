@@ -1,88 +1,68 @@
 
+# Fix Plan: Admin Login, Call Now Buttons, and Doctors Section
 
-## Bhaktapur Fertility & Women Wellness Center — Phase 1 Plan
+## Issues Identified
 
-### 🎨 Design & Branding
-- **Primary color palette** extracted from logo: Teal (#1A8A8A / #0E7B7B) with green accent (#4CAF50)
-- Clean, minimal healthcare aesthetic with plenty of whitespace, soft shadows, and modern typography
-- Mobile-first responsive design with smooth hover states and subtle fade/slide animations
-- Professional, medically appropriate tone throughout
+### 1. Admin Login "Signal is Aborted" Error
+The "signal is aborted without reason" error occurs due to a race condition in React's Strict Mode. When the component mounts twice (React Strict Mode behavior), the first authentication request gets aborted when the component unmounts. The current code doesn't handle `AbortError` gracefully, so it shows the raw error message to the user.
 
-### 📄 Public Website Pages
+Additionally, there's a problematic pattern in `AdminLogin.tsx` where a `useEffect` watches for `user && !isAdmin` and immediately signs the user out -- but `isAdmin` might not be resolved yet because the `checkAdmin` async call in `useAuth.tsx` is still in progress. This causes:
+- User logs in -> session is set -> `loading` becomes true -> `onAuthStateChange` fires -> admin check starts -> brief moment where `user` exists but `isAdmin` is still false -> the useEffect fires and signs the user out.
 
-**1. Home Page**
-- Hero section with clinic tagline + "Book Appointment" and "Call Now" CTA buttons
-- Quick service highlights (cards showing key services like IVF, ICSI, IUI)
-- "Why Choose Us" section with 4-6 trust points
-- Featured doctors preview (linked to Our Doctors page)
-- Latest blog posts preview (3 posts)
-- Contact strip with phone (+977-9761434655, 01-5912281), email (info@bhaktapurfertility.com.np), address (Ayu Bhawan, Gatthaghar, Bhaktapur), working hours (10:00AM - 5:00PM)
+**Fix:**
+- In `AdminLogin.tsx`: Remove the problematic "sign out non-admins" useEffect that races with admin check. Instead, handle the admin check result more carefully after loading completes.
+- Add proper error handling to ignore `AbortError` in the login catch block.
+- In `useAuth.tsx`: Use a mounted ref to prevent state updates after unmount.
 
-**2. About Us**
-- Clinic introduction, mission, vision, and values
-- Facility highlights section
-- Trust elements layout for certifications/partners
+### 2. "Call Now" Button Not Visible on Sub-Pages
+The sub-page hero sections (About, Services, Doctors, Blog, Contact) use `bg-secondary` (a very light mint background). The "Call Now" button uses the default button variant which renders as teal (`bg-primary`) with white text. The user wants these buttons to look exactly like the homepage hero's "Call Now" button.
 
-**3. Our Services**
-- All 10 services displayed: IVF, ICSI, PESA, TESA, TESE, PGT, Fertility Preservation, IUI, Ovulation Induction, Semen Analysis
-- Each service with title, short description, and optional "Learn More" expandable section
-- Clean card-based grid layout
+The homepage hero has a **dark teal background** (`bg-primary`) with the "Call Now" styled as a semi-transparent outline button. The sub-pages have a **light background** (`bg-secondary`), creating an inconsistent look.
 
-**4. Our Doctors**
-- Doctor directory grid pulling from database
-- Doctor cards showing image, name, and position
-- Detail view (modal or page) with full bio, experience, email, and phone
+**Fix:**
+Change all sub-page hero sections to use the same dark `bg-primary text-primary-foreground` background as the homepage hero. Then style the "Call Now" buttons with the same transparent outline treatment used on the homepage:
+```
+variant="outline"
+className="border-primary-foreground/40 bg-primary-foreground/10
+           text-primary-foreground hover:bg-primary-foreground/20"
+```
 
-**5. Insights (Blog)**
-- Blog listing with search and category filter
-- Blog detail page with SEO-friendly slug URL, reading time, cover image, author, date
-- Social share buttons (Facebook, Twitter/X, LinkedIn)
+### 3. Doctors Section Empty
+The database has 3 doctors and the RLS policy (`qual: true`) allows public reads. In my browser test, the doctors loaded correctly. The issue the user sees is likely caused by the "signal aborted" error cascading -- when the auth system aborts and throws errors, it can disrupt other queries on the same page. Once the auth issue is fixed, doctor queries should work reliably.
 
-**6. Contact Us**
-- Contact form (name, phone, email, message) — saves to database
-- Google Maps embed placeholder for Ayu Bhawan, Gatthaghar, Bhaktapur
-- Clinic contact details and working hours display
+As an additional safeguard, I'll add explicit error handling and `staleTime` configuration to the doctors query to prevent unnecessary refetches.
 
-### 🔧 Core Features
-- **Sticky header** with navigation + "Book Appointment" CTA button
-- **Appointment Request form** (modal): name, phone, email, preferred date, message — saves to database + shows success message
-- **WhatsApp floating button** on mobile linking to +977-9761434655
-- **Email notification** for new appointment requests (using Resend via Supabase Edge Function — will need Resend API key setup)
-- **Basic SEO**: meta titles/descriptions per page, OpenGraph tags, robots.txt
+## Files to Modify
 
-### 🗄️ Backend (Supabase)
+### `src/hooks/useAuth.tsx`
+- Add a `mounted` ref to prevent state updates after component unmount
+- Wrap `checkAdmin` calls with the mounted guard to avoid setting state on unmounted components
 
-**Database Tables:**
-- `blogs` — title, slug, cover_image_url, category, excerpt, content, author, publish_date, status (draft/published)
-- `doctors` — image_url, full_name, position, experience, description, email, phone
-- `appointment_requests` — name, phone, email, preferred_date, message, created_at
-- `contact_messages` — name, phone, email, message, created_at
-- `user_roles` — for admin authentication (secure role-based access)
+### `src/pages/admin/AdminLogin.tsx`
+- Remove the second `useEffect` that prematurely signs out users before admin check completes
+- Consolidate logic into a single effect that waits for `authLoading` to be false before making any decisions
+- Handle `AbortError` and `AuthApiError` with name "AbortError" in the catch block
 
-**Storage:**
-- Supabase Storage bucket for blog cover images and doctor photos
+### `src/pages/About.tsx`
+- Change hero `bg-secondary` to `bg-primary text-primary-foreground`
+- Update paragraph text color from `text-muted-foreground` to `text-primary-foreground/80`
+- Update "Call Now" button to use the homepage's outline style
 
-**Edge Function:**
-- `send-appointment-notification` — sends email via Resend when a new appointment request is submitted
+### `src/pages/Services.tsx`
+- Same hero background and button changes as About
 
-### 🔐 Admin Panel (/admin)
+### `src/pages/Doctors.tsx`
+- Same hero background and button changes as About
+- Add error handling to doctors query
 
-**Authentication:**
-- Admin login page with Supabase Auth
-- Role-based access using `user_roles` table (only users with 'admin' role can access)
+### `src/pages/Blog.tsx`
+- Same hero background and button changes as About
+- Update search input styling for contrast on dark background
 
-**Admin Sidebar & Pages:**
-- **Dashboard** — Summary cards showing total blogs, doctors, appointment requests, and contact messages
-- **Blogs Management** — Full CRUD: create, edit, delete blog posts with rich text editor, image upload, slug auto-generation, draft/published status
-- **Doctors Management** — Full CRUD: add, edit, delete doctors with image upload
-- **Appointment Requests** — Read-only list view of all submitted appointment forms
-- **Contact Messages** — Read-only list view of all contact form submissions
+### `src/pages/Contact.tsx`
+- Same hero background and button changes as About
 
-### 📦 Seed Data
-- 3 sample doctors with placeholder images and realistic bios
-- 3 sample blog posts with fertility/wellness topics
-
-### 🔗 Integrations Needed
-- **Supabase** — Database, Auth, Storage (will prompt to connect)
-- **Resend** — For appointment email notifications (will need API key from user)
-
+## Implementation Order
+1. Fix `useAuth.tsx` (root cause of auth issues)
+2. Fix `AdminLogin.tsx` (remove race condition)
+3. Update all 5 sub-page hero sections (About, Services, Doctors, Blog, Contact) with dark backgrounds and matching button styles
