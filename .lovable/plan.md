@@ -1,68 +1,67 @@
 
 
-# Fix: Call Now Button Visibility and Auth Stability
+# Add Password Reset Flow for Admin Login
 
-## Summary
+## Problem
+The authentication system is returning "Invalid login credentials" for the admin account (`rizal.avash@gmail.com`). The stored password doesn't match what's being entered. Since passwords cannot be viewed or directly changed, we need a password reset flow.
 
-There are two remaining issues to fix:
+## Solution
+Add a "Forgot Password?" link to the admin login page and create a password reset page to handle the email callback.
 
-1. **The "Call Now" button is invisible on the Service Detail pages** (like the TESA page in your screenshot). This specific page was missed in previous updates. The button has white text on a white background because a background style (`bg-primary-foreground/10`) is missing.
+## How It Will Work
 
-2. **The Doctor Detail page** also has an outdated hero section that needs updating to match the rest of the site.
+1. On the admin login page, click "Forgot Password?"
+2. Enter your email address (`rizal.avash@gmail.com`)
+3. Receive a password reset email
+4. Click the link in the email -- it redirects to `/admin/reset-password`
+5. Enter and confirm your new password
+6. Get redirected to the admin login page to sign in with your new password
 
-3. **The admin login "signal is aborted" error** needs a more robust fix -- the current approach still allows a race condition where the component unmounts mid-request.
+## Changes
 
-Regarding login credentials: I'm unable to provide login credentials as I don't have access to view or create passwords. Your admin account was set up with the email `rizal.avash@gmail.com`. If you've forgotten the password, you can reset it through the authentication system, or I can help set up a password reset flow.
+### 1. Update `src/pages/admin/AdminLogin.tsx`
+- Add a "Forgot Password?" link below the sign-in button
+- Add a toggle state to show a "Reset Password" form (email input + send reset link button)
+- Use `supabase.auth.resetPasswordForEmail()` with `redirectTo` pointing to the reset password page
 
----
+### 2. Create `src/pages/admin/AdminResetPassword.tsx`
+- New page that handles the password reset callback
+- Shows a form with "New Password" and "Confirm Password" fields
+- Uses `supabase.auth.updateUser({ password })` to set the new password
+- Redirects to `/admin/login` on success with a success toast
 
-## What Will Change
-
-### 1. ServiceDetail.tsx -- Fix the invisible "Call Now" button
-
-The button on line 62 is missing the semi-transparent background that makes it visible on the teal hero. It currently has:
-```
-border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10
-```
-
-It needs to match the homepage style:
-```
-border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20
-```
-
-### 2. DoctorDetail.tsx -- Update hero section
-
-The Doctor Detail page still uses `bg-secondary` (light background) for its hero. This will be updated to use `bg-primary text-primary-foreground` for consistency. The "Back to Doctors" link and text colors will be updated accordingly.
-
-### 3. AdminLogin.tsx -- More robust abort error handling
-
-The current fix still has a gap. The login handler will be updated to:
-- Wrap the auth call with an AbortController tied to the component lifecycle
-- Silently ignore any `AbortError` without showing error messages
-- Remove the `loginAttempted` flag complexity in favor of a simpler flow
-
-### 4. useAuth.tsx -- Defensive state updates
-
-Ensure the `mountedRef` guard is applied consistently to all state-setting paths, preventing "state update on unmounted component" warnings that can cascade into visible errors.
-
----
+### 3. Update `src/App.tsx`
+- Add a new route: `/admin/reset-password` pointing to the new `AdminResetPassword` component
 
 ## Technical Details
 
-### Files to modify:
+### Password Reset Email Flow
+```text
+User clicks "Forgot Password?"
+  --> enters email
+  --> supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/admin/reset-password'
+      })
+  --> user receives email with magic link
+  --> clicks link, lands on /admin/reset-password with session token
+  --> enters new password
+  --> supabase.auth.updateUser({ password: newPassword })
+  --> redirected to /admin/login
+```
 
+### Files to create:
+| File | Purpose |
+|------|---------|
+| `src/pages/admin/AdminResetPassword.tsx` | New password reset page with form |
+
+### Files to modify:
 | File | Change |
 |------|--------|
-| `src/pages/ServiceDetail.tsx` | Add `bg-primary-foreground/10` to the Call Now button, update border opacity to `/40` |
-| `src/pages/DoctorDetail.tsx` | Change hero from `bg-secondary` to `bg-primary text-primary-foreground`, update link/text colors |
-| `src/pages/admin/AdminLogin.tsx` | Simplify login handler with proper AbortController, remove race-prone useEffect |
-| `src/hooks/useAuth.tsx` | Add safety guards to prevent state updates after unmount |
+| `src/pages/admin/AdminLogin.tsx` | Add "Forgot Password?" toggle and reset email form |
+| `src/App.tsx` | Add `/admin/reset-password` route |
 
-### Button style reference (homepage):
-```
-variant="outline"
-className="border-primary-foreground/40 bg-primary-foreground/10
-           text-primary-foreground hover:bg-primary-foreground/20"
-```
-
-This creates a semi-transparent glass-like button that is clearly visible against the dark teal hero background.
+### Security Considerations
+- The reset link is sent only to the registered email
+- The reset token is handled securely by the authentication system
+- Password confirmation field prevents typos
+- After successful reset, user must log in again with the new credentials
