@@ -48,21 +48,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAdmin(admin);
       }
       setLoading(false);
+    }).catch((err: any) => {
+      if (err?.name === "AbortError" || 
+          err?.message?.includes("abort") || 
+          err?.message?.includes("signal")) {
+        return;
+      }
+      console.error("Auth session error:", err);
+      if (mountedRef.current) setLoading(false);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        if (!mountedRef.current) return;
-        setSession(session);
-        if (session?.user) {
-          setLoading(true);
-          const admin = await checkAdmin(session.user.id);
+        try {
           if (!mountedRef.current) return;
-          setIsAdmin(admin);
-        } else {
-          setIsAdmin(false);
+          setSession(session);
+          if (session?.user) {
+            setLoading(true);
+            const admin = await checkAdmin(session.user.id);
+            if (!mountedRef.current) return;
+            setIsAdmin(admin);
+          } else {
+            setIsAdmin(false);
+          }
+          setLoading(false);
+        } catch (err: any) {
+          if (err?.name === "AbortError" || 
+              err?.message?.includes("abort") || 
+              err?.message?.includes("signal")) {
+            return;
+          }
+          console.error("Auth state change error:", err);
+          if (mountedRef.current) setLoading(false);
         }
-        setLoading(false);
       }
     );
 
