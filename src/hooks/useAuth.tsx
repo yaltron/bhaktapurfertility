@@ -39,50 +39,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     mountedRef.current = true;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mountedRef.current) return;
-      setSession(session);
-      if (session?.user) {
-        const admin = await checkAdmin(session.user.id);
-        if (!mountedRef.current) return;
-        setIsAdmin(admin);
-      }
-      setLoading(false);
-    }).catch((err: any) => {
-      if (err?.name === "AbortError" || 
-          err?.message?.includes("abort") || 
-          err?.message?.includes("signal")) {
-        return;
-      }
-      console.error("Auth session error:", err);
-      if (mountedRef.current) setLoading(false);
-    });
-
+    // 1. Register listener FIRST — catches events during hash processing (recovery, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        try {
-          if (!mountedRef.current) return;
-          setSession(session);
-          if (session?.user) {
-            setLoading(true);
-            const admin = await checkAdmin(session.user.id);
-            if (!mountedRef.current) return;
-            setIsAdmin(admin);
-          } else {
-            setIsAdmin(false);
-          }
-          setLoading(false);
-        } catch (err: any) {
-          if (err?.name === "AbortError" || 
-              err?.message?.includes("abort") || 
-              err?.message?.includes("signal")) {
-            return;
-          }
-          console.error("Auth state change error:", err);
-          if (mountedRef.current) setLoading(false);
+      (_event, session) => {
+        if (!mountedRef.current) return;
+        setSession(session);
+        // Fire and forget — do NOT control loading state
+        if (session?.user) {
+          checkAdmin(session.user.id).then((admin) => {
+            if (mountedRef.current) setIsAdmin(admin);
+          }).catch(() => {});
+        } else {
+          setIsAdmin(false);
         }
       }
     );
+
+    // 2. Initial load — this is the ONLY thing that controls loading
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mountedRef.current) return;
+        setSession(session);
+        if (session?.user) {
+          const admin = await checkAdmin(session.user.id);
+          if (mountedRef.current) setIsAdmin(admin);
+        }
+      } catch (err: any) {
+        if (err?.name === "AbortError" ||
+            err?.message?.includes("abort") ||
+            err?.message?.includes("signal")) {
+          return;
+        }
+        console.error("Auth session error:", err);
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
+    };
+
+    initializeAuth();
 
     return () => {
       mountedRef.current = false;
