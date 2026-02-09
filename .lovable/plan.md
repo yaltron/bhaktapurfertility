@@ -1,67 +1,71 @@
 
 
-# Add Password Reset Flow for Admin Login
+# Fix: Password Reset Page Stuck on "Verifying"
 
 ## Problem
-The authentication system is returning "Invalid login credentials" for the admin account (`rizal.avash@gmail.com`). The stored password doesn't match what's being entered. Since passwords cannot be viewed or directly changed, we need a password reset flow.
+
+When you click the password reset link from your email, the page redirects to `/admin/reset-password` but gets permanently stuck showing "Verifying your reset link..." and never shows the password form.
+
+## Root Cause
+
+There is a timing/race condition:
+
+1. The reset link redirects to `/admin/reset-password#access_token=...&type=recovery`
+2. The Supabase client starts processing the URL hash fragments asynchronously
+3. The `AuthProvider` (which wraps the entire app) registers its `onAuthStateChange` listener first
+4. The `PASSWORD_RECOVERY` event fires and is received by `AuthProvider`
+5. By the time the `AdminResetPassword` component mounts and registers its own listener, the event has already fired and been consumed
+6. The `getSession()` fallback might also be called before the hash processing finishes, returning `null`
+7. Result: `sessionReady` never becomes `true`, form never appears
 
 ## Solution
-Add a "Forgot Password?" link to the admin login page and create a password reset page to handle the email callback.
 
-## How It Will Work
+Make the reset password page more robust by:
 
-1. On the admin login page, click "Forgot Password?"
-2. Enter your email address (`rizal.avash@gmail.com`)
-3. Receive a password reset email
-4. Click the link in the email -- it redirects to `/admin/reset-password`
-5. Enter and confirm your new password
-6. Get redirected to the admin login page to sign in with your new password
+1. Listening for ALL relevant auth events (not just `PASSWORD_RECOVERY` -- also `SIGNED_IN` and `TOKEN_REFRESHED`)
+2. Adding a polling/retry mechanism for `getSession()` to handle async hash processing
+3. Checking the URL hash for `type=recovery` as an immediate signal
+4. Adding a timeout fallback that shows the form if a session exists after a short delay
 
 ## Changes
 
-### 1. Update `src/pages/admin/AdminLogin.tsx`
-- Add a "Forgot Password?" link below the sign-in button
-- Add a toggle state to show a "Reset Password" form (email input + send reset link button)
-- Use `supabase.auth.resetPasswordForEmail()` with `redirectTo` pointing to the reset password page
+### File: `src/pages/admin/AdminResetPassword.tsx`
 
-### 2. Create `src/pages/admin/AdminResetPassword.tsx`
-- New page that handles the password reset callback
-- Shows a form with "New Password" and "Confirm Password" fields
-- Uses `supabase.auth.updateUser({ password })` to set the new password
-- Redirects to `/admin/login` on success with a success toast
+Replace the current `useEffect` logic with a more robust approach:
 
-### 3. Update `src/App.tsx`
-- Add a new route: `/admin/reset-password` pointing to the new `AdminResetPassword` component
+- On mount, immediately check if the URL hash contains `type=recovery` -- if so, we know we're in a recovery flow
+- Listen for `PASSWORD_RECOVERY`, `SIGNED_IN`, and `TOKEN_REFRESHED` events on `onAuthStateChange`
+- Implement a retry loop (polling `getSession()` every 500ms for up to 5 seconds) to catch the session even if it's established after the first check
+- Add a clear error state with a "Go back to login" button if the session truly can't be established after the timeout
+- Add a loading spinner for better UX during verification
 
-## Technical Details
+### Technical Implementation
 
-### Password Reset Email Flow
 ```text
-User clicks "Forgot Password?"
-  --> enters email
-  --> supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/admin/reset-password'
-      })
-  --> user receives email with magic link
-  --> clicks link, lands on /admin/reset-password with session token
-  --> enters new password
-  --> supabase.auth.updateUser({ password: newPassword })
-  --> redirected to /admin/login
+Component mounts
+  |
+  +--> Check URL hash for "type=recovery" or "access_token"
+  |      (immediate signal we're in recovery flow)
+  |
+  +--> Register onAuthStateChange listener
+  |      Listen for: PASSWORD_RECOVERY, SIGNED_IN, TOKEN_REFRESHED
+  |      Any of these with a valid session -> sessionReady = true
+  |
+  +--> Start polling getSession() every 500ms
+  |      If session found -> sessionReady = true, stop polling
+  |      After 5 seconds with no session -> show error with
+  |      "Go back to login" button
+  |
+  +--> Once sessionReady = true:
+         Show the new password form
 ```
 
-### Files to create:
-| File | Purpose |
-|------|---------|
-| `src/pages/admin/AdminResetPassword.tsx` | New password reset page with form |
+### Key Differences from Current Code
 
-### Files to modify:
-| File | Change |
-|------|--------|
-| `src/pages/admin/AdminLogin.tsx` | Add "Forgot Password?" toggle and reset email form |
-| `src/App.tsx` | Add `/admin/reset-password` route |
+| Current | Fixed |
+|---------|-------|
+| Only listens for `PASSWORD_RECOVERY` event | Listens for multiple auth events |
+| Single `getSession()` check that may be too early | Polls `getSession()` with retries |
+| Gets stuck forever if event is missed | Shows error after 5-second timeout with actionable guidance |
+| No loading indicator | Shows a spinner during verification |
 
-### Security Considerations
-- The reset link is sent only to the registered email
-- The reset token is handled securely by the authentication system
-- Password confirmation field prevents typos
-- After successful reset, user must log in again with the new credentials
