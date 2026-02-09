@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,76 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { toast } from "sonner";
 import { CLINIC } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminResetPassword = () => {
+  const { session, loading: authLoading } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sessionReady, setSessionReady] = useState(false);
-  const [timedOut, setTimedOut] = useState(false);
   const navigate = useNavigate();
-  const sessionFoundRef = useRef(false);
-
-  useEffect(() => {
-    let pollInterval: ReturnType<typeof setInterval> | null = null;
-    let timeoutTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const markReady = () => {
-      if (!sessionFoundRef.current) {
-        sessionFoundRef.current = true;
-        setSessionReady(true);
-        if (pollInterval) clearInterval(pollInterval);
-        if (timeoutTimer) clearTimeout(timeoutTimer);
-      }
-    };
-
-    // 1. Check URL hash for recovery signal
-    const hash = window.location.hash;
-    const isRecoveryFlow = hash.includes("type=recovery") || hash.includes("access_token");
-
-    // 2. Listen for multiple auth events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (
-        (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") &&
-        session
-      ) {
-        markReady();
-      }
-    });
-
-    // 3. Poll getSession() to catch async hash processing
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        markReady();
-      }
-    };
-
-    // Immediate check
-    checkSession();
-
-    // Poll every 500ms
-    pollInterval = setInterval(checkSession, 500);
-
-    // 4. Timeout after 5 seconds
-    timeoutTimer = setTimeout(() => {
-      if (!sessionFoundRef.current) {
-        if (pollInterval) clearInterval(pollInterval);
-        // One final check
-        checkSession().then(() => {
-          if (!sessionFoundRef.current) {
-            setTimedOut(true);
-          }
-        });
-      }
-    }, 5000);
-
-    return () => {
-      subscription.unsubscribe();
-      if (pollInterval) clearInterval(pollInterval);
-      if (timeoutTimer) clearTimeout(timeoutTimer);
-    };
-  }, []);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +47,26 @@ const AdminResetPassword = () => {
     }
   };
 
-  if (timedOut) {
+  // Auth still loading — show spinner
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="font-display text-2xl text-primary">{CLINIC.shortName}</CardTitle>
+            <CardDescription>Verifying your reset link...</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-3 text-muted-foreground">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p>Please wait while we verify your password reset link.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // No session after auth loaded — link is invalid/expired
+  if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
         <Card className="w-full max-w-md">
@@ -133,23 +90,7 @@ const AdminResetPassword = () => {
     );
   }
 
-  if (!sessionReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle className="font-display text-2xl text-primary">{CLINIC.shortName}</CardTitle>
-            <CardDescription>Verifying your reset link...</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center gap-3 text-muted-foreground">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <p>Please wait while we verify your password reset link.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  // Session exists — show password form
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary p-4">
       <Card className="w-full max-w-md">
