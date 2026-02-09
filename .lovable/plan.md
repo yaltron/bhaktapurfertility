@@ -1,71 +1,91 @@
 
 
-# Fix: Password Reset Page Stuck on "Verifying"
+# Fix: Uncaught AbortError in Auth Hook
 
 ## Problem
 
-When you click the password reset link from your email, the page redirects to `/admin/reset-password` but gets permanently stuck showing "Verifying your reset link..." and never shows the password form.
+The red console error `Uncaught (in promise) AbortError: signal is aborted without reason` appears on **every page** (not just the admin login). It originates from the `useAuth.tsx` hook, which wraps the entire app.
+
+The yellow `postMessage` warnings are from the Lovable preview environment itself and are harmless — they are not related to your code.
 
 ## Root Cause
 
-There is a timing/race condition:
-
-1. The reset link redirects to `/admin/reset-password#access_token=...&type=recovery`
-2. The Supabase client starts processing the URL hash fragments asynchronously
-3. The `AuthProvider` (which wraps the entire app) registers its `onAuthStateChange` listener first
-4. The `PASSWORD_RECOVERY` event fires and is received by `AuthProvider`
-5. By the time the `AdminResetPassword` component mounts and registers its own listener, the event has already fired and been consumed
-6. The `getSession()` fallback might also be called before the hash processing finishes, returning `null`
-7. Result: `sessionReady` never becomes `true`, form never appears
+In `src/hooks/useAuth.tsx`, the `supabase.auth.getSession()` call on line 42 uses `.then()` but has **no `.catch()` handler**. When the component unmounts (e.g., during navigation or preview environment re-rendering), the cleanup function calls `subscription.unsubscribe()`, which can abort in-flight auth requests. The aborted promise has nowhere to go, so it surfaces as an uncaught error in the console.
 
 ## Solution
 
-Make the reset password page more robust by:
-
-1. Listening for ALL relevant auth events (not just `PASSWORD_RECOVERY` -- also `SIGNED_IN` and `TOKEN_REFRESHED`)
-2. Adding a polling/retry mechanism for `getSession()` to handle async hash processing
-3. Checking the URL hash for `type=recovery` as an immediate signal
-4. Adding a timeout fallback that shows the form if a session exists after a short delay
+Wrap the auth initialization logic in `useAuth.tsx` with proper error handling to silently catch `AbortError` exceptions. This is a safe and correct fix because abort errors during cleanup are expected behavior — they just mean "this request is no longer needed."
 
 ## Changes
 
-### File: `src/pages/admin/AdminResetPassword.tsx`
+### File: `src/hooks/useAuth.tsx`
 
-Replace the current `useEffect` logic with a more robust approach:
+**1. Add `.catch()` to the `getSession()` promise chain** (around line 42):
+- Add a `.catch()` that silently ignores `AbortError` and errors containing "abort" or "signal"
+- Log non-abort errors to the console for debugging
+- Set `loading` to `false` even on error so the app doesn't hang
 
-- On mount, immediately check if the URL hash contains `type=recovery` -- if so, we know we're in a recovery flow
-- Listen for `PASSWORD_RECOVERY`, `SIGNED_IN`, and `TOKEN_REFRESHED` events on `onAuthStateChange`
-- Implement a retry loop (polling `getSession()` every 500ms for up to 5 seconds) to catch the session even if it's established after the first check
-- Add a clear error state with a "Go back to login" button if the session truly can't be established after the timeout
-- Add a loading spinner for better UX during verification
+**2. Wrap the `checkAdmin` call inside `onAuthStateChange`** (around line 59):
+- Add a try-catch around the `checkAdmin()` call inside the auth state change handler
+- Silently ignore abort errors there too, since the subscription can be unsubscribed while admin check is in-flight
 
-### Technical Implementation
+### What the code will look like:
 
-```text
-Component mounts
-  |
-  +--> Check URL hash for "type=recovery" or "access_token"
-  |      (immediate signal we're in recovery flow)
-  |
-  +--> Register onAuthStateChange listener
-  |      Listen for: PASSWORD_RECOVERY, SIGNED_IN, TOKEN_REFRESHED
-  |      Any of these with a valid session -> sessionReady = true
-  |
-  +--> Start polling getSession() every 500ms
-  |      If session found -> sessionReady = true, stop polling
-  |      After 5 seconds with no session -> show error with
-  |      "Go back to login" button
-  |
-  +--> Once sessionReady = true:
-         Show the new password form
+```typescript
+// Before (line 42-51):
+supabase.auth.getSession().then(async ({ data: { session } }) => {
+  // ... logic ...
+});
+
+// After:
+supabase.auth.getSession().then(async ({ data: { session } }) => {
+  // ... same logic ...
+}).catch((err) => {
+  // Silently ignore abort errors from cleanup/unmount
+  if (err?.name === "AbortError" || 
+      err?.message?.includes("abort") || 
+      err?.message?.includes("signal")) {
+    return;
+  }
+  console.error("Auth session error:", err);
+  if (mountedRef.current) setLoading(false);
+});
 ```
 
-### Key Differences from Current Code
+```typescript
+// Before (line 53-67):
+const { data: { subscription } } = supabase.auth.onAuthStateChange(
+  async (_event, session) => {
+    // ... logic with checkAdmin ...
+  }
+);
 
-| Current | Fixed |
-|---------|-------|
-| Only listens for `PASSWORD_RECOVERY` event | Listens for multiple auth events |
-| Single `getSession()` check that may be too early | Polls `getSession()` with retries |
-| Gets stuck forever if event is missed | Shows error after 5-second timeout with actionable guidance |
-| No loading indicator | Shows a spinner during verification |
+// After: wrap inner logic in try-catch
+const { data: { subscription } } = supabase.auth.onAuthStateChange(
+  async (_event, session) => {
+    try {
+      // ... same logic ...
+    } catch (err: any) {
+      if (err?.name === "AbortError" || 
+          err?.message?.includes("abort") || 
+          err?.message?.includes("signal")) {
+        return;
+      }
+      console.error("Auth state change error:", err);
+      if (mountedRef.current) setLoading(false);
+    }
+  }
+);
+```
+
+### Files to modify:
+
+| File | Change |
+|------|--------|
+| `src/hooks/useAuth.tsx` | Add `.catch()` to `getSession()` promise and try-catch around `onAuthStateChange` handler |
+
+### What this fixes:
+- Eliminates the red `AbortError` from appearing in the console on every page
+- Does not change any auth behavior — login, admin checks, and session management all work exactly the same
+- Only suppresses expected abort errors that occur during normal component lifecycle
 
