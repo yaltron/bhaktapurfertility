@@ -1,91 +1,154 @@
 
 
-# Fix: Uncaught AbortError in Auth Hook
+# Fix: Password Reset Page Stuck on Loading (Root Cause Fix)
 
 ## Problem
 
-The red console error `Uncaught (in promise) AbortError: signal is aborted without reason` appears on **every page** (not just the admin login). It originates from the `useAuth.tsx` hook, which wraps the entire app.
+The password reset page (`/admin/reset-password`) stays stuck on "Verifying your reset link..." and never shows the password form, even though the authentication logs confirm the recovery link is processed successfully.
 
-The yellow `postMessage` warnings are from the Lovable preview environment itself and are harmless — they are not related to your code.
+## Root Cause (Revised)
 
-## Root Cause
+There are TWO interacting bugs:
 
-In `src/hooks/useAuth.tsx`, the `supabase.auth.getSession()` call on line 42 uses `.then()` but has **no `.catch()` handler**. When the component unmounts (e.g., during navigation or preview environment re-rendering), the cleanup function calls `subscription.unsubscribe()`, which can abort in-flight auth requests. The aborted promise has nowhere to go, so it surfaces as an uncaught error in the console.
+### Bug 1: `useAuth.tsx` sets `loading = true` during ongoing auth changes
+
+In the `onAuthStateChange` callback (line 67), whenever a session is detected, it sets `loading = true` before calling `checkAdmin()`. This is problematic because:
+- It triggers unnecessary re-renders across the entire app
+- It can cause a brief "loading" state flicker that disrupts child components
+- It violates the pattern of separating initial auth load from ongoing changes
+
+### Bug 2: `AdminResetPassword` has a redundant, fragile session detection mechanism
+
+The component creates its own `onAuthStateChange` listener and polling loop, duplicating what `AuthProvider` already does. This is fragile because:
+- In Supabase v2, `onAuthStateChange` fires an `INITIAL_SESSION` event when a listener is registered, but the component doesn't check for this event
+- The `PASSWORD_RECOVERY` event may have already fired by the time this component's listener is registered
+- While polling should theoretically catch this, having two independent listeners on the same auth client creates unpredictable behavior
 
 ## Solution
 
-Wrap the auth initialization logic in `useAuth.tsx` with proper error handling to silently catch `AbortError` exceptions. This is a safe and correct fix because abort errors during cleanup are expected behavior — they just mean "this request is no longer needed."
+Apply the proven fix from the stack overflow solution: restructure the auth flow so that:
+
+1. **`useAuth.tsx`**: Separate initial load from ongoing changes. Register `onAuthStateChange` BEFORE `getSession()`. Only the initial `getSession()` controls the `loading` state. Ongoing auth changes update session/role without toggling `loading`.
+
+2. **`AdminResetPassword.tsx`**: Remove the redundant listener and polling. Instead, use `useAuth()` directly -- once `loading` is `false` and a session exists, show the password form. This eliminates the race condition entirely.
 
 ## Changes
 
-### File: `src/hooks/useAuth.tsx`
+### File 1: `src/hooks/useAuth.tsx`
 
-**1. Add `.catch()` to the `getSession()` promise chain** (around line 42):
-- Add a `.catch()` that silently ignores `AbortError` and errors containing "abort" or "signal"
-- Log non-abort errors to the console for debugging
-- Set `loading` to `false` even on error so the app doesn't hang
+Restructure the `useEffect` to follow the recommended pattern:
 
-**2. Wrap the `checkAdmin` call inside `onAuthStateChange`** (around line 59):
-- Add a try-catch around the `checkAdmin()` call inside the auth state change handler
-- Silently ignore abort errors there too, since the subscription can be unsubscribed while admin check is in-flight
+- Register `onAuthStateChange` FIRST (before `getSession`)
+- The `onAuthStateChange` handler updates `session` and `isAdmin` but does NOT set `loading` to `true` or `false` -- it just fires `checkAdmin` as fire-and-forget
+- The initial `getSession()` call is the ONLY thing that controls `loading`
+- `loading` starts as `true` and is set to `false` once (and only once) after the initial session + admin check completes
 
-### What the code will look like:
+```text
+Current flow (buggy):
+  getSession() -> set session -> check admin -> loading = false
+  onAuthStateChange -> set session -> loading = TRUE -> check admin -> loading = false
+                                      ^^^^^^^^^^^^^^
+                                      This causes re-renders and disrupts child components
 
-```typescript
-// Before (line 42-51):
-supabase.auth.getSession().then(async ({ data: { session } }) => {
-  // ... logic ...
-});
-
-// After:
-supabase.auth.getSession().then(async ({ data: { session } }) => {
-  // ... same logic ...
-}).catch((err) => {
-  // Silently ignore abort errors from cleanup/unmount
-  if (err?.name === "AbortError" || 
-      err?.message?.includes("abort") || 
-      err?.message?.includes("signal")) {
-    return;
-  }
-  console.error("Auth session error:", err);
-  if (mountedRef.current) setLoading(false);
-});
+Fixed flow:
+  onAuthStateChange -> set session -> check admin (fire and forget)
+  getSession() -> set session -> await check admin -> loading = false (once)
 ```
 
-```typescript
-// Before (line 53-67):
-const { data: { subscription } } = supabase.auth.onAuthStateChange(
-  async (_event, session) => {
-    // ... logic with checkAdmin ...
-  }
-);
+### File 2: `src/pages/admin/AdminResetPassword.tsx`
 
-// After: wrap inner logic in try-catch
-const { data: { subscription } } = supabase.auth.onAuthStateChange(
-  async (_event, session) => {
-    try {
-      // ... same logic ...
-    } catch (err: any) {
-      if (err?.name === "AbortError" || 
-          err?.message?.includes("abort") || 
-          err?.message?.includes("signal")) {
-        return;
+Simplify dramatically:
+
+- Remove the entire custom `useEffect` with `onAuthStateChange`, polling, and timeouts
+- Remove `sessionReady`, `timedOut`, `sessionFoundRef` state
+- Import and use `useAuth()` hook instead
+- Check: if `auth.loading` is true, show spinner
+- Check: if `auth.loading` is false and no session, show "link expired" message
+- Check: if `auth.loading` is false and session exists, show the password form
+
+This reduces the component from ~195 lines to ~100 lines and eliminates all timing issues.
+
+## Technical Details
+
+### `useAuth.tsx` - New useEffect structure:
+
+```typescript
+useEffect(() => {
+  let isMounted = true;
+
+  // 1. Register listener FIRST (catches events during hash processing)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      if (!isMounted) return;
+      setSession(session);
+      // Fire and forget - do NOT control loading
+      if (session?.user) {
+        checkAdmin(session.user.id).catch(() => {});
+      } else {
+        setIsAdmin(false);
       }
-      console.error("Auth state change error:", err);
-      if (mountedRef.current) setLoading(false);
     }
+  );
+
+  // 2. Initial load - this is the ONLY thing that controls loading
+  const initializeAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!isMounted) return;
+      setSession(session);
+      if (session?.user) {
+        await checkAdmin(session.user.id);
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortError" || ...) return;
+      console.error("Auth session error:", err);
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  };
+
+  initializeAuth();
+
+  return () => {
+    isMounted = false;
+    subscription.unsubscribe();
+  };
+}, []);
+```
+
+### `AdminResetPassword.tsx` - Simplified logic:
+
+```typescript
+const AdminResetPassword = () => {
+  const { session, loading: authLoading } = useAuth();
+  // ... password state, navigate, etc.
+
+  // If auth is still loading, show spinner
+  if (authLoading) {
+    return <VerifyingSpinner />;
   }
-);
+
+  // If no session after auth loaded, link is invalid/expired
+  if (!session) {
+    return <LinkExpiredCard />;
+  }
+
+  // Session exists - show password form
+  return <PasswordForm />;
+};
 ```
 
 ### Files to modify:
 
 | File | Change |
 |------|--------|
-| `src/hooks/useAuth.tsx` | Add `.catch()` to `getSession()` promise and try-catch around `onAuthStateChange` handler |
+| `src/hooks/useAuth.tsx` | Restructure useEffect: listener before getSession, only initial load controls loading state |
+| `src/pages/admin/AdminResetPassword.tsx` | Remove custom session detection, use `useAuth()` hook instead |
 
-### What this fixes:
-- Eliminates the red `AbortError` from appearing in the console on every page
-- Does not change any auth behavior — login, admin checks, and session management all work exactly the same
-- Only suppresses expected abort errors that occur during normal component lifecycle
+### Why this fixes the issue:
+
+1. `AuthProvider` registers its listener before `getSession()`, so it catches ALL events including those fired during hash processing
+2. The `loading` state is only set to `false` once, after the initial load completes -- no more toggling
+3. `AdminResetPassword` simply reads the auth state instead of trying to independently detect the session
+4. No more race conditions, no more duplicate listeners, no more polling
 
