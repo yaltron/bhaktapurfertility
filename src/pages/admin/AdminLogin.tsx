@@ -17,7 +17,7 @@ const AdminLogin = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const navigate = useNavigate();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, adminLoading } = useAuth();
   const mountedRef = useRef(true);
   const hasTriedLogin = useRef(false);
 
@@ -30,7 +30,7 @@ const AdminLogin = () => {
 
   // Redirect admins, reject non-admins (only after auth finishes loading AND user actively logged in)
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || adminLoading) return;
 
     if (user && isAdmin) {
       navigate("/admin", { replace: true });
@@ -43,7 +43,7 @@ const AdminLogin = () => {
       toast.error("Access denied. Admin privileges required.");
       if (mountedRef.current) setLoading(false);
     }
-  }, [user, isAdmin, authLoading, navigate]);
+  }, [user, isAdmin, authLoading, adminLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
