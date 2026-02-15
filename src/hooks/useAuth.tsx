@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
   loading: boolean;
+  adminLoading: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   isAdmin: false,
   loading: true,
+  adminLoading: false,
   signOut: async () => {},
 });
 
@@ -24,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [adminLoading, setAdminLoading] = useState(false);
   const mountedRef = useRef(true);
 
   const checkAdmin = async (userId: string) => {
@@ -46,11 +49,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         // Fire and forget — do NOT control loading state
         if (session?.user) {
+          setAdminLoading(true);
           checkAdmin(session.user.id).then((admin) => {
-            if (mountedRef.current) setIsAdmin(admin);
-          }).catch(() => {});
+            if (mountedRef.current) {
+              setIsAdmin(admin);
+              setAdminLoading(false);
+            }
+          }).catch(() => {
+            if (mountedRef.current) setAdminLoading(false);
+          });
         } else {
           setIsAdmin(false);
+          setAdminLoading(false);
         }
       }
     );
@@ -98,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: session?.user ?? null,
         isAdmin,
         loading,
+        adminLoading,
         signOut,
       }}
     >
