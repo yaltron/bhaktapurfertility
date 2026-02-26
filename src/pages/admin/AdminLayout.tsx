@@ -10,6 +10,8 @@ import {
   MessageSquare,
   LogOut,
   ArrowLeft,
+  Star,
+  HelpCircle,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +20,8 @@ const NAV_ITEMS = [
   { to: "/admin/doctors", icon: Users, label: "Doctors", end: false },
   { to: "/admin/appointments", icon: CalendarCheck, label: "Appointments", end: false },
   { to: "/admin/messages", icon: MessageSquare, label: "Messages", end: false },
+  { to: "/admin/success-stories", icon: Star, label: "Success Stories", end: false },
+  { to: "/admin/faqs", icon: HelpCircle, label: "FAQs", end: false },
 ];
 
 const AdminLayout = () => {

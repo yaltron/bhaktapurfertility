@@ -25,6 +25,8 @@ import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminDoctors from "./pages/admin/AdminDoctors";
 import AdminAppointments from "./pages/admin/AdminAppointments";
 import AdminMessages from "./pages/admin/AdminMessages";
+import AdminSuccessStories from "./pages/admin/AdminSuccessStories";
+import AdminFAQs from "./pages/admin/AdminFAQs";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
@@ -67,6 +69,8 @@ const App = () => (
               <Route path="doctors" element={<AdminDoctors />} />
               <Route path="appointments" element={<AdminAppointments />} />
               <Route path="messages" element={<AdminMessages />} />
+              <Route path="success-stories" element={<AdminSuccessStories />} />
+              <Route path="faqs" element={<AdminFAQs />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
