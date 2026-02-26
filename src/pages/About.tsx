@@ -1,6 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Heart, Eye, Target, Building, Award, Handshake, Phone } from "lucide-react";
+import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 
 const VALUES = [
@@ -18,6 +18,12 @@ const FACILITIES = [
   "Patient Counseling Area",
 ];
 
+const CLINIC_PHOTOS = [
+  { label: "Reception Area", placeholder: "Welcoming reception and waiting area" },
+  { label: "Treatment Rooms", placeholder: "Modern, well-equipped treatment rooms" },
+  { label: "Patient Area", placeholder: "Comfortable patient-friendly environment" },
+];
+
 const About = () => {
   return (
     <Layout>
@@ -28,7 +34,7 @@ const About = () => {
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">About Us</h1>
               <p className="text-lg text-primary-foreground/80 leading-relaxed">
-                {CLINIC.name} is a leading fertility and women&apos;s wellness center located in {CLINIC.address}. We are dedicated to helping families achieve their dream of parenthood through advanced reproductive technologies and compassionate care.
+                {CLINIC.name} is dedicated to compassionate, advanced fertility and women's health care in Bhaktapur. We help families achieve their dream of parenthood through cutting-edge reproductive technologies.
               </p>
             </div>
             <Button asChild size="lg" variant="outline" className="self-start md:self-auto border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
@@ -62,7 +68,7 @@ const About = () => {
               <div>
                 <h2 className="text-2xl font-display font-bold mb-3">Our Vision</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  To be recognized as the premier fertility and women&apos;s wellness center in Nepal, known for our exceptional success rates, patient-centered approach, and unwavering commitment to bringing the joy of parenthood to every family.
+                  To be recognized as the premier fertility and women's wellness centre in Nepal, known for our exceptional success rates, patient-centered approach, and unwavering commitment to bringing the joy of parenthood to every family.
                 </p>
               </div>
             </div>
@@ -88,8 +94,29 @@ const About = () => {
         </div>
       </section>
 
-      {/* Facility */}
+      {/* Clinic Environment Photos */}
       <section className="py-16 md:py-24">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-display font-bold mb-3">Our Centre</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              A welcoming, patient-friendly environment designed for your comfort and care.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {CLINIC_PHOTOS.map((photo) => (
+              <div key={photo.label} className="rounded-lg overflow-hidden bg-muted aspect-[4/3] flex flex-col items-center justify-center text-center p-6">
+                <Camera className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                <h3 className="font-semibold text-sm mb-1">{photo.label}</h3>
+                <p className="text-xs text-muted-foreground">{photo.placeholder}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Facility */}
+      <section className="py-16 md:py-24 bg-secondary">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center">
             <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -97,11 +124,11 @@ const About = () => {
             </div>
             <h2 className="text-3xl font-display font-bold mb-4">Our Facility</h2>
             <p className="text-muted-foreground mb-8">
-              Our center is equipped with modern infrastructure designed to provide the best possible experience and outcomes for our patients.
+              Our centre is equipped with modern infrastructure designed to provide the best possible experience and outcomes for our patients.
             </p>
             <div className="grid sm:grid-cols-2 gap-3 text-left">
               {FACILITIES.map((f) => (
-                <div key={f} className="flex items-center gap-2 p-3 rounded-lg bg-secondary text-sm">
+                <div key={f} className="flex items-center gap-2 p-3 rounded-lg bg-background text-sm">
                   <span className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
                   {f}
                 </div>

@@ -129,8 +129,11 @@ export type Database = {
           full_name: string
           id: string
           image_url: string | null
+          nmc_number: string | null
           phone: string | null
           position: string
+          qualification: string | null
+          short_bio: string | null
           updated_at: string
         }
         Insert: {
@@ -142,8 +145,11 @@ export type Database = {
           full_name: string
           id?: string
           image_url?: string | null
+          nmc_number?: string | null
           phone?: string | null
           position: string
+          qualification?: string | null
+          short_bio?: string | null
           updated_at?: string
         }
         Update: {
@@ -155,9 +161,72 @@ export type Database = {
           full_name?: string
           id?: string
           image_url?: string | null
+          nmc_number?: string | null
           phone?: string | null
           position?: string
+          qualification?: string | null
+          short_bio?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      faqs: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          question: string
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          question: string
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          question?: string
+        }
+        Relationships: []
+      }
+      success_stories: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_featured: boolean | null
+          photo_url: string | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          photo_url?: string | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          photo_url?: string | null
+          title?: string
+          video_url?: string | null
         }
         Relationships: []
       }

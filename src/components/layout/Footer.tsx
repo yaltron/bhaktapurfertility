@@ -10,10 +10,10 @@ export function Footer() {
           {/* About */}
           <div className="lg:col-span-1">
             <h3 className="text-lg font-display font-bold text-background mb-3">
-              {CLINIC.shortName}
+              {CLINIC.name}
             </h3>
             <p className="text-sm text-background/70 leading-relaxed">
-              Providing advanced fertility treatments and compassionate women&apos;s healthcare in Bhaktapur, Nepal.
+              Providing advanced fertility treatments and compassionate women's healthcare in Bhaktapur, Nepal.
             </p>
           </div>
 
@@ -42,13 +42,13 @@ export function Footer() {
               Key Services
             </h4>
             <ul className="space-y-2 text-sm text-background/70">
-              {SERVICES.slice(0, 5).map((s) => (
+              {SERVICES.map((s) => (
                 <li key={s.slug}>
                   <Link
                     to={`/services/${s.slug}`}
                     className="hover:text-background transition-colors"
                   >
-                    {s.title}
+                    {s.shortName}
                   </Link>
                 </li>
               ))}
@@ -93,7 +93,7 @@ export function Footer() {
       <div className="border-t border-background/10">
         <div className="container py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-background/50">
           <span>© {new Date().getFullYear()} {CLINIC.name}. All rights reserved.</span>
-          <span className="mt-1 sm:mt-0">Gatthaghar, Bhaktapur, Nepal</span>
+          <span className="mt-1 sm:mt-0">{CLINIC.address}</span>
         </div>
       </div>
     </footer>

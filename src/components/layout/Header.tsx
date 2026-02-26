@@ -34,8 +34,8 @@ export function Header() {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="container flex items-center justify-between h-16 md:h-20">
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl md:text-2xl font-display font-bold text-primary">
-              {CLINIC.shortName}
+            <span className="text-base md:text-lg font-display font-bold text-primary leading-tight">
+              {CLINIC.name}
             </span>
           </Link>
 
