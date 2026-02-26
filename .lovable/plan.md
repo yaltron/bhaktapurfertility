@@ -1,154 +1,143 @@
 
 
-# Fix: Password Reset Page Stuck on Loading (Root Cause Fix)
+# Comprehensive Website Content & Layout Update Plan
 
-## Problem
+This is a large multi-part update. I'll break it into manageable implementation phases.
 
-The password reset page (`/admin/reset-password`) stays stuck on "Verifying your reset link..." and never shows the password form, even though the authentication logs confirm the recovery link is processed successfully.
+---
 
-## Root Cause (Revised)
+## Phase 1: Foundation Changes
 
-There are TWO interacting bugs:
+### 1.1 Update Constants (`src/lib/constants.ts`)
+- Change `CLINIC.name` to "Bhaktapur Fertility and Women Wellness Centre" (note: "Centre" not "Center")
+- Update `CLINIC.address` to "Ground Floor, German Homes Building, Gatthaghar, Bhaktapur, Nepal"
+- Update `CLINIC.tagline` to Nepali text: "अनेक बाधाका बीच देखेको सपना, आफ्नै सन्तान खेलाउने काखमा ।"
+- Replace SERVICES array with new list: IVF, Menopause, Menstruation & PCOS, Ultrasound, Egg Freezing, Semen Freezing, Hormone Testing, Other Fertility & Women Wellness Services
+- Add `shortName` kept as "Bhaktapur Fertility Centre"
+- Add Noto Sans Nepali font import and update nav links to include FAQ and Success Stories
 
-### Bug 1: `useAuth.tsx` sets `loading = true` during ongoing auth changes
+### 1.2 Font Updates (`src/index.css`)
+- Replace Inter with Roboto/Lato for English
+- Add Noto Sans Nepali for Nepali text
+- Add a `.font-nepali` utility class
 
-In the `onAuthStateChange` callback (line 67), whenever a session is detected, it sets `loading = true` before calling `checkAdmin()`. This is problematic because:
-- It triggers unnecessary re-renders across the entire app
-- It can cause a brief "loading" state flicker that disrupts child components
-- It violates the pattern of separating initial auth load from ongoing changes
+### 1.3 Navigation Updates (`src/lib/constants.ts`)
+- Add "Success Stories" and "FAQ" to NAV_LINKS
 
-### Bug 2: `AdminResetPassword` has a redundant, fragile session detection mechanism
+---
 
-The component creates its own `onAuthStateChange` listener and polling loop, duplicating what `AuthProvider` already does. This is fragile because:
-- In Supabase v2, `onAuthStateChange` fires an `INITIAL_SESSION` event when a listener is registered, but the component doesn't check for this event
-- The `PASSWORD_RECOVERY` event may have already fired by the time this component's listener is registered
-- While polling should theoretically catch this, having two independent listeners on the same auth client creates unpredictable behavior
+## Phase 2: Database Changes
 
-## Solution
+### 2.1 Add `success_stories` table
+- `id`, `title`, `description`, `photo_url`, `video_url`, `is_featured`, `created_at`, `display_order`
+- RLS: public read, admin write
 
-Apply the proven fix from the stack overflow solution: restructure the auth flow so that:
+### 2.2 Add `faqs` table
+- `id`, `question`, `answer`, `category`, `display_order`, `created_at`
+- RLS: public read, admin write
 
-1. **`useAuth.tsx`**: Separate initial load from ongoing changes. Register `onAuthStateChange` BEFORE `getSession()`. Only the initial `getSession()` controls the `loading` state. Ongoing auth changes update session/role without toggling `loading`.
+### 2.3 Update `doctors` table
+- Add `qualification` (text, nullable)
+- Add `nmc_number` (text, nullable)
+- Add `short_bio` (text, nullable)
 
-2. **`AdminResetPassword.tsx`**: Remove the redundant listener and polling. Instead, use `useAuth()` directly -- once `loading` is `false` and a session exists, show the password form. This eliminates the race condition entirely.
+---
 
-## Changes
+## Phase 3: Homepage Rebuild (`src/pages/Index.tsx`)
 
-### File 1: `src/hooks/useAuth.tsx`
+Replace current homepage sections with:
 
-Restructure the `useEffect` to follow the recommended pattern:
+1. **Hero Section**: Nepali tagline text prominently displayed, soft gradient background (keep existing primary color scheme), Book Appointment + Call Now + WhatsApp buttons
+2. **Services Preview**: Grid of 7-8 service cards with Lucide icons, each linking to `/services/{slug}`
+3. **Success Stories Carousel**: Fetch from `success_stories` table, carousel using embla-carousel-react (already installed), fallback placeholder if none exist
+4. **About Clinic Preview**: Short intro paragraph + "About Us" button linking to `/about`
+5. **Contact & Address Strip**: Updated address, Phone CTA, WhatsApp CTA buttons
+6. **Keep**: Doctors preview, Blog preview sections (reorder as needed)
 
-- Register `onAuthStateChange` FIRST (before `getSession`)
-- The `onAuthStateChange` handler updates `session` and `isAdmin` but does NOT set `loading` to `true` or `false` -- it just fires `checkAdmin` as fire-and-forget
-- The initial `getSession()` call is the ONLY thing that controls `loading`
-- `loading` starts as `true` and is set to `false` once (and only once) after the initial session + admin check completes
+---
 
-```text
-Current flow (buggy):
-  getSession() -> set session -> check admin -> loading = false
-  onAuthStateChange -> set session -> loading = TRUE -> check admin -> loading = false
-                                      ^^^^^^^^^^^^^^
-                                      This causes re-renders and disrupts child components
+## Phase 4: Services Page Updates
 
-Fixed flow:
-  onAuthStateChange -> set session -> check admin (fire and forget)
-  getSession() -> set session -> await check admin -> loading = false (once)
-```
+### 4.1 Update `src/pages/Services.tsx`
+- Render updated SERVICES list with icons, short descriptions, photo placeholders
+- Each card has "Book Appointment" button
 
-### File 2: `src/pages/admin/AdminResetPassword.tsx`
+### 4.2 Update `src/pages/ServiceDetail.tsx`
+- Add "Book Appointment" button prominently
+- Keep existing structure, update to match new service list
 
-Simplify dramatically:
+---
 
-- Remove the entire custom `useEffect` with `onAuthStateChange`, polling, and timeouts
-- Remove `sessionReady`, `timedOut`, `sessionFoundRef` state
-- Import and use `useAuth()` hook instead
-- Check: if `auth.loading` is true, show spinner
-- Check: if `auth.loading` is false and no session, show "link expired" message
-- Check: if `auth.loading` is false and session exists, show the password form
+## Phase 5: Doctors Page Updates
 
-This reduces the component from ~195 lines to ~100 lines and eliminates all timing issues.
+### 5.1 Update `src/pages/Doctors.tsx` and `src/pages/DoctorDetail.tsx`
+- Add qualification, NMC number, short bio fields to card layout
+- Add "Book Appointment" button on each doctor card
 
-## Technical Details
+---
 
-### `useAuth.tsx` - New useEffect structure:
+## Phase 6: New Pages
 
-```typescript
-useEffect(() => {
-  let isMounted = true;
+### 6.1 Create `src/pages/SuccessStories.tsx`
+- Grid/list of stories from `success_stories` table
+- Photo/video thumbnails, short description, "Read More" expansion
+- Book Appointment button
 
-  // 1. Register listener FIRST (catches events during hash processing)
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
-      if (!isMounted) return;
-      setSession(session);
-      // Fire and forget - do NOT control loading
-      if (session?.user) {
-        checkAdmin(session.user.id).catch(() => {});
-      } else {
-        setIsAdmin(false);
-      }
-    }
-  );
+### 6.2 Create `src/pages/FAQ.tsx`
+- Accordion-style FAQ from `faqs` table
+- Grouped by category if available
 
-  // 2. Initial load - this is the ONLY thing that controls loading
-  const initializeAuth = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!isMounted) return;
-      setSession(session);
-      if (session?.user) {
-        await checkAdmin(session.user.id);
-      }
-    } catch (err: any) {
-      if (err?.name === "AbortError" || ...) return;
-      console.error("Auth session error:", err);
-    } finally {
-      if (isMounted) setLoading(false);
-    }
-  };
+### 6.3 Add routes in `src/App.tsx`
+- `/success-stories` → SuccessStories
+- `/faq` → FAQ
 
-  initializeAuth();
+---
 
-  return () => {
-    isMounted = false;
-    subscription.unsubscribe();
-  };
-}, []);
-```
+## Phase 7: About Page Updates (`src/pages/About.tsx`)
+- Add placeholder sections for clinic environment photos (reception, treatment rooms, patient area)
+- Keep existing mission/vision/values content
 
-### `AdminResetPassword.tsx` - Simplified logic:
+---
 
-```typescript
-const AdminResetPassword = () => {
-  const { session, loading: authLoading } = useAuth();
-  // ... password state, navigate, etc.
+## Phase 8: Global Updates
 
-  // If auth is still loading, show spinner
-  if (authLoading) {
-    return <VerifyingSpinner />;
-  }
+### 8.1 Header (`src/components/layout/Header.tsx`)
+- Use full clinic name "Bhaktapur Fertility and Women Wellness Centre"
+- Updated nav links including Success Stories and FAQ
 
-  // If no session after auth loaded, link is invalid/expired
-  if (!session) {
-    return <LinkExpiredCard />;
-  }
+### 8.2 Footer (`src/components/layout/Footer.tsx`)
+- Update address to new format
+- Update services list to match new services
+- Use full clinic name
 
-  // Session exists - show password form
-  return <PasswordForm />;
-};
-```
+### 8.3 WhatsApp Button
+- Already exists and functional, no changes needed
 
-### Files to modify:
+---
 
-| File | Change |
-|------|--------|
-| `src/hooks/useAuth.tsx` | Restructure useEffect: listener before getSession, only initial load controls loading state |
-| `src/pages/admin/AdminResetPassword.tsx` | Remove custom session detection, use `useAuth()` hook instead |
+## Files to Create
+| File | Purpose |
+|------|---------|
+| `src/pages/SuccessStories.tsx` | Success stories list page |
+| `src/pages/FAQ.tsx` | FAQ accordion page |
 
-### Why this fixes the issue:
+## Files to Modify
+| File | Changes |
+|------|---------|
+| `src/lib/constants.ts` | Clinic name, address, tagline, services list, nav links |
+| `src/index.css` | Font imports (Roboto + Noto Sans Nepali) |
+| `src/App.tsx` | Add routes for success-stories, faq |
+| `src/pages/Index.tsx` | Full homepage rebuild with new sections |
+| `src/pages/Services.tsx` | Updated service cards with booking buttons |
+| `src/pages/ServiceDetail.tsx` | Add booking button |
+| `src/pages/Doctors.tsx` | Add qualification, NMC, bio, booking button |
+| `src/pages/DoctorDetail.tsx` | Add new fields display |
+| `src/pages/About.tsx` | Add clinic photos placeholder section |
+| `src/components/layout/Header.tsx` | Full name usage |
+| `src/components/layout/Footer.tsx` | Updated address and services |
 
-1. `AuthProvider` registers its listener before `getSession()`, so it catches ALL events including those fired during hash processing
-2. The `loading` state is only set to `false` once, after the initial load completes -- no more toggling
-3. `AdminResetPassword` simply reads the auth state instead of trying to independently detect the session
-4. No more race conditions, no more duplicate listeners, no more polling
+## Database Migrations
+1. Create `success_stories` table with RLS
+2. Create `faqs` table with RLS
+3. Add columns to `doctors` table (qualification, nmc_number, short_bio)
 
