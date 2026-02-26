@@ -15,10 +15,13 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
 
 interface StoryForm {
   title: string;
+  slug: string;
   description: string;
+  content: string;
   photo_url: string;
   video_url: string;
   is_featured: boolean;
@@ -27,12 +30,17 @@ interface StoryForm {
 
 const emptyForm: StoryForm = {
   title: "",
+  slug: "",
   description: "",
+  content: "",
   photo_url: "",
   video_url: "",
   is_featured: false,
   display_order: 0,
 };
+
+const generateSlug = (title: string) =>
+  title.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();
 
 const AdminSuccessStories = () => {
   const queryClient = useQueryClient();
@@ -92,7 +100,9 @@ const AdminSuccessStories = () => {
     setEditingId(s.id);
     setForm({
       title: s.title,
+      slug: s.slug || "",
       description: s.description || "",
+      content: s.content || "",
       photo_url: s.photo_url || "",
       video_url: s.video_url || "",
       is_featured: s.is_featured || false,
@@ -102,6 +112,14 @@ const AdminSuccessStories = () => {
   };
 
   const closeDialog = () => { setDialogOpen(false); setEditingId(null); setForm(emptyForm); };
+
+  const handleTitleChange = (title: string) => {
+    setForm((f) => ({
+      ...f,
+      title,
+      slug: editingId ? f.slug : generateSlug(title),
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +139,7 @@ const AdminSuccessStories = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
+                <TableHead>Slug</TableHead>
                 <TableHead>Featured</TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -128,11 +147,12 @@ const AdminSuccessStories = () => {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : stories && stories.length > 0 ? (
                 stories.map((s) => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">{s.title}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{s.slug}</TableCell>
                     <TableCell>{s.is_featured ? <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" /> : "—"}</TableCell>
                     <TableCell className="text-muted-foreground">{s.display_order}</TableCell>
                     <TableCell className="text-right">
@@ -144,7 +164,7 @@ const AdminSuccessStories = () => {
                   </TableRow>
                 ))
               ) : (
-                <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No success stories yet.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No success stories yet.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
@@ -152,32 +172,46 @@ const AdminSuccessStories = () => {
       </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit Story" : "Add Story"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label>Title *</Label>
-              <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Title *</Label>
+                <Input value={form.title} onChange={(e) => handleTitleChange(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label>Slug *</Label>
+                <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} required />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={4} />
+              <Label>Short Description (shown on card)</Label>
+              <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={3} />
             </div>
             <div className="space-y-2">
-              <Label>Photo URL</Label>
-              <Input value={form.photo_url} onChange={(e) => setForm((f) => ({ ...f, photo_url: e.target.value }))} placeholder="https://..." />
+              <Label>Full Content</Label>
+              <RichTextEditor content={form.content} onChange={(html) => setForm((f) => ({ ...f, content: html }))} />
             </div>
-            <div className="space-y-2">
-              <Label>Video URL</Label>
-              <Input value={form.video_url} onChange={(e) => setForm((f) => ({ ...f, video_url: e.target.value }))} placeholder="https://..." />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Photo URL</Label>
+                <Input value={form.photo_url} onChange={(e) => setForm((f) => ({ ...f, photo_url: e.target.value }))} placeholder="https://..." />
+              </div>
+              <div className="space-y-2">
+                <Label>Video URL</Label>
+                <Input value={form.video_url} onChange={(e) => setForm((f) => ({ ...f, video_url: e.target.value }))} placeholder="https://..." />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="is_featured" checked={form.is_featured} onCheckedChange={(v) => setForm((f) => ({ ...f, is_featured: !!v }))} />
-              <Label htmlFor="is_featured">Featured</Label>
-            </div>
-            <div className="space-y-2">
-              <Label>Display Order</Label>
-              <Input type="number" value={form.display_order} onChange={(e) => setForm((f) => ({ ...f, display_order: +e.target.value }))} />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox id="is_featured" checked={form.is_featured} onCheckedChange={(v) => setForm((f) => ({ ...f, is_featured: !!v }))} />
+                <Label htmlFor="is_featured">Featured</Label>
+              </div>
+              <div className="space-y-2 flex items-center gap-2">
+                <Label>Order</Label>
+                <Input type="number" className="w-20" value={form.display_order} onChange={(e) => setForm((f) => ({ ...f, display_order: +e.target.value }))} />
+              </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
