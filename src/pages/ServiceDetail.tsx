@@ -3,9 +3,13 @@ import { Layout } from "@/components/layout/Layout";
 import { SERVICES, CLINIC } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft, Phone, Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope } from "lucide-react";
 import { AppointmentModal } from "@/components/AppointmentModal";
 import { useState } from "react";
+
+const SERVICE_ICONS: Record<string, React.ElementType> = {
+  Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope,
+};
 
 const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -30,9 +34,10 @@ const ServiceDetail = () => {
     );
   }
 
+  const Icon = SERVICE_ICONS[service.icon] || Stethoscope;
+
   return (
     <Layout>
-      {/* Hero */}
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link
@@ -42,7 +47,9 @@ const ServiceDetail = () => {
             <ArrowLeft className="h-4 w-4" /> Back to Services
           </Link>
           <div className="flex items-start gap-4">
-            <span className="text-5xl">{service.icon}</span>
+            <div className="h-16 w-16 rounded-full bg-primary-foreground/10 flex items-center justify-center flex-shrink-0">
+              <Icon className="h-8 w-8 text-primary-foreground" />
+            </div>
             <div>
               <h1 className="text-3xl md:text-5xl font-display font-bold mb-3">
                 {service.title}
@@ -70,28 +77,32 @@ const ServiceDetail = () => {
         </div>
       </section>
 
-      {/* Other Services */}
       <section className="py-16 md:py-24">
         <div className="container">
           <h2 className="text-2xl md:text-3xl font-display font-bold mb-8">Other Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {otherServices.map((s) => (
-              <Link key={s.slug} to={`/services/${s.slug}`}>
-                <Card className="hover:shadow-md transition-shadow h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">{s.icon}</span>
-                      <div>
-                        <h3 className="font-semibold text-sm">{s.shortName}</h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-                          {s.description}
-                        </p>
+            {otherServices.map((s) => {
+              const OtherIcon = SERVICE_ICONS[s.icon] || Stethoscope;
+              return (
+                <Link key={s.slug} to={`/services/${s.slug}`}>
+                  <Card className="hover:shadow-md transition-shadow h-full">
+                    <CardContent className="p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <OtherIcon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-sm">{s.shortName}</h3>
+                          <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+                            {s.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

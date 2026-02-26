@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,8 +7,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Phone } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
+import { AppointmentModal } from "@/components/AppointmentModal";
 
 const Doctors = () => {
+  const [appointmentOpen, setAppointmentOpen] = useState(false);
+
   const { data: doctors, isLoading } = useQuery({
     queryKey: ["doctors"],
     queryFn: async () => {
@@ -28,7 +32,7 @@ const Doctors = () => {
             <div className="max-w-3xl">
               <h1 className="text-3xl md:text-5xl font-display font-bold mb-4">Our Doctors</h1>
               <p className="text-lg text-primary-foreground/80 leading-relaxed">
-                Meet our team of experienced fertility specialists and healthcare professionals.
+                Meet our team of experienced fertility specialists at {CLINIC.name}.
               </p>
             </div>
             <Button asChild size="lg" variant="outline" className="self-start md:self-auto border-primary-foreground/40 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20">
@@ -57,8 +61,8 @@ const Doctors = () => {
           ) : doctors && doctors.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {doctors.map((doc) => (
-                <Link key={doc.id} to={`/doctors/${doc.id}`}>
-                  <Card className="overflow-hidden hover:shadow-md transition-shadow">
+                <Card key={doc.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <Link to={`/doctors/${doc.id}`}>
                     <div className="aspect-[3/4] bg-muted flex items-center justify-center">
                       {doc.image_url ? (
                         <img src={doc.image_url} alt={doc.full_name} className="w-full h-full object-cover" />
@@ -66,12 +70,26 @@ const Doctors = () => {
                         <Users className="h-20 w-20 text-muted-foreground/20" />
                       )}
                     </div>
-                    <CardContent className="p-5 text-center">
+                  </Link>
+                  <CardContent className="p-5 text-center">
+                    <Link to={`/doctors/${doc.id}`}>
                       <h3 className="font-semibold text-lg">{doc.full_name}</h3>
-                      <p className="text-sm text-muted-foreground">{doc.position}</p>
-                    </CardContent>
-                  </Card>
-                </Link>
+                    </Link>
+                    <p className="text-sm text-muted-foreground">{doc.position}</p>
+                    {(doc as any).qualification && (
+                      <p className="text-xs text-muted-foreground mt-1">{(doc as any).qualification}</p>
+                    )}
+                    {(doc as any).nmc_number && (
+                      <p className="text-xs text-muted-foreground">NMC: {(doc as any).nmc_number}</p>
+                    )}
+                    {(doc as any).short_bio && (
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{(doc as any).short_bio}</p>
+                    )}
+                    <Button size="sm" className="mt-3" onClick={() => setAppointmentOpen(true)}>
+                      Book Appointment
+                    </Button>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           ) : (
@@ -82,6 +100,8 @@ const Doctors = () => {
           )}
         </div>
       </section>
+
+      <AppointmentModal open={appointmentOpen} onOpenChange={setAppointmentOpen} />
     </Layout>
   );
 };

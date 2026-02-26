@@ -15,6 +15,8 @@ import DoctorDetail from "./pages/DoctorDetail";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
+import SuccessStories from "./pages/SuccessStories";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -46,6 +48,8 @@ const App = () => (
             <Route path="/insights" element={<Blog />} />
             <Route path="/insights/:slug" element={<BlogPost />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/success-stories" element={<SuccessStories />} />
+            <Route path="/faq" element={<FAQ />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

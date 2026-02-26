@@ -1,8 +1,8 @@
 export const CLINIC = {
-  name: "Bhaktapur Fertility & Women Wellness Center",
-  shortName: "Bhaktapur Fertility Center",
-  tagline: "Your Journey to Parenthood Starts Here",
-  address: "Ayu Bhawan, Gatthaghar, Bhaktapur",
+  name: "Bhaktapur Fertility and Women Wellness Centre",
+  shortName: "Bhaktapur Fertility Centre",
+  tagline: "अनेक बाधाका बीच देखेको सपना, आफ्नै सन्तान खेलाउने काखमा ।",
+  address: "Ground Floor, German Homes Building, Gatthaghar, Bhaktapur, Nepal",
   phones: ["+977-9761434655", "01-5912281"],
   whatsapp: "+9779761434655",
   email: "info@bhaktapurfertility.com.np",
@@ -23,84 +23,68 @@ export interface ServiceItem {
 
 export const SERVICES: ServiceItem[] = [
   {
-    title: "In Vitro Fertilization (IVF)",
+    title: "IVF & Infertility Treatment",
     shortName: "IVF",
     slug: "ivf",
     description:
-      "IVF is an advanced assisted reproductive technology where eggs are fertilized with sperm outside the body in a laboratory. The resulting embryos are then transferred to the uterus, offering hope to couples facing complex fertility challenges.",
-    icon: "🔬",
+      "In Vitro Fertilization (IVF) is an advanced assisted reproductive technology where eggs are fertilized with sperm outside the body. Our state-of-the-art laboratory and experienced team offer hope to couples facing complex fertility challenges.",
+    icon: "Microscope",
   },
   {
-    title: "Intracytoplasmic Sperm Injection (ICSI)",
-    shortName: "ICSI",
-    slug: "icsi",
+    title: "Menopause Care",
+    shortName: "Menopause",
+    slug: "menopause",
     description:
-      "ICSI involves directly injecting a single sperm into the center of an egg to achieve fertilization. This technique is especially beneficial for male factor infertility and cases where conventional IVF has not succeeded.",
-    icon: "💉",
+      "Comprehensive menopause management including hormone therapy, lifestyle guidance, and symptom relief to help women navigate this natural transition with comfort and confidence.",
+    icon: "Flower2",
   },
   {
-    title: "Percutaneous Epididymal Sperm Aspiration (PESA)",
-    shortName: "PESA",
-    slug: "pesa",
+    title: "Menstruation & PCOS",
+    shortName: "Menstruation & PCOS",
+    slug: "menstruation-pcos",
     description:
-      "PESA is a minimally invasive procedure used to retrieve sperm directly from the epididymis using a fine needle. It is ideal for men with obstructive azoospermia who cannot produce sperm through ejaculation.",
-    icon: "🩺",
+      "Expert diagnosis and treatment for menstrual disorders and Polycystic Ovary Syndrome (PCOS), including hormonal management, lifestyle modifications, and fertility support.",
+    icon: "HeartPulse",
   },
   {
-    title: "Testicular Sperm Aspiration (TESA)",
-    shortName: "TESA",
-    slug: "tesa",
+    title: "Ultrasound",
+    shortName: "Ultrasound",
+    slug: "ultrasound",
     description:
-      "TESA extracts sperm directly from testicular tissue using a needle aspiration technique. It is commonly used when sperm cannot be obtained from the epididymis or through ejaculation.",
-    icon: "🔍",
+      "Advanced diagnostic ultrasound services for fertility monitoring, pregnancy care, and gynecological assessments using modern imaging technology.",
+    icon: "Monitor",
   },
   {
-    title: "Testicular Sperm Extraction (TESE)",
-    shortName: "TESE",
-    slug: "tese",
+    title: "Egg Freezing",
+    shortName: "Egg Freezing",
+    slug: "egg-freezing",
     description:
-      "TESE is a surgical procedure to extract sperm from testicular tissue through a small biopsy. It is recommended for men with non-obstructive azoospermia where other retrieval methods are not feasible.",
-    icon: "⚕️",
+      "Preserve your fertility for the future with our egg freezing (oocyte cryopreservation) service. Ideal for women who wish to delay pregnancy for medical or personal reasons.",
+    icon: "Snowflake",
   },
   {
-    title: "Preimplantation Genetic Testing (PGT)",
-    shortName: "PGT",
-    slug: "pgt",
+    title: "Semen Freezing",
+    shortName: "Semen Freezing",
+    slug: "semen-freezing",
     description:
-      "PGT involves screening embryos for genetic abnormalities before they are implanted during an IVF cycle. This helps identify healthy embryos, improving pregnancy success rates and reducing the risk of genetic disorders.",
-    icon: "🧬",
+      "Sperm cryopreservation service to safeguard male reproductive potential for future use, whether for medical treatment, fertility planning, or personal choice.",
+    icon: "Thermometer",
   },
   {
-    title: "Fertility Preservation",
-    shortName: "Fertility Preservation",
-    slug: "fertility-preservation",
+    title: "Hormone Testing",
+    shortName: "Hormone Testing",
+    slug: "hormone-testing",
     description:
-      "Fertility preservation includes techniques like egg freezing, sperm freezing, and embryo cryopreservation to safeguard reproductive potential for the future, whether for medical or personal reasons.",
-    icon: "❄️",
+      "Comprehensive hormonal evaluation to assess reproductive health, diagnose fertility issues, and guide personalized treatment plans for both men and women.",
+    icon: "TestTubes",
   },
   {
-    title: "Intrauterine Insemination (IUI)",
-    shortName: "IUI",
-    slug: "iui",
+    title: "Other Fertility & Women Wellness Services",
+    shortName: "Other Services",
+    slug: "other-services",
     description:
-      "IUI is a fertility treatment where prepared, concentrated sperm is placed directly into the uterus around the time of ovulation. It is a less invasive and more affordable first-line treatment option.",
-    icon: "🌱",
-  },
-  {
-    title: "Ovulation Induction",
-    shortName: "Ovulation Induction",
-    slug: "ovulation-induction",
-    description:
-      "Ovulation induction uses medications to stimulate the ovaries to produce and release eggs. It is often the first step in fertility treatment for women with irregular or absent ovulation.",
-    icon: "💊",
-  },
-  {
-    title: "Semen Analysis",
-    shortName: "Semen Analysis",
-    slug: "semen-analysis",
-    description:
-      "Semen analysis is a diagnostic test that evaluates the health and viability of sperm, including count, motility, and morphology. It is a fundamental step in assessing male fertility.",
-    icon: "🔎",
+      "A full range of additional reproductive and women's health services including IUI, ovulation induction, semen analysis, PGT, and general gynecological care.",
+    icon: "Stethoscope",
   },
 ];
 
@@ -109,6 +93,8 @@ export const NAV_LINKS = [
   { label: "About", href: "/about" },
   { label: "Services", href: "/services" },
   { label: "Our Doctors", href: "/doctors" },
+  { label: "Success Stories", href: "/success-stories" },
   { label: "Insights", href: "/insights" },
+  { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },
 ] as const;

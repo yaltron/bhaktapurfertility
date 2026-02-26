@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,9 +6,11 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Users, Mail, Phone } from "lucide-react";
+import { AppointmentModal } from "@/components/AppointmentModal";
 
 const DoctorDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [appointmentOpen, setAppointmentOpen] = useState(false);
 
   const { data: doctor, isLoading } = useQuery({
     queryKey: ["doctor", id],
@@ -68,6 +71,8 @@ const DoctorDetail = () => {
     );
   }
 
+  const doc = doctor as any;
+
   return (
     <Layout>
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
@@ -80,30 +85,36 @@ const DoctorDetail = () => {
           </Link>
 
           <div className="grid md:grid-cols-[300px_1fr] gap-8 max-w-4xl">
-            {/* Photo */}
             <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden flex items-center justify-center">
               {doctor.image_url ? (
-                <img
-                  src={doctor.image_url}
-                  alt={doctor.full_name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={doctor.image_url} alt={doctor.full_name} className="w-full h-full object-cover" />
               ) : (
                 <Users className="h-20 w-20 text-muted-foreground/20" />
               )}
             </div>
 
-            {/* Info */}
             <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">
-                {doctor.full_name}
-              </h1>
-              <p className="text-lg text-primary-foreground/80 font-medium mb-4">{doctor.position}</p>
+              <h1 className="text-3xl md:text-4xl font-display font-bold mb-2">{doctor.full_name}</h1>
+              <p className="text-lg text-primary-foreground/80 font-medium mb-2">{doctor.position}</p>
+
+              {doc.qualification && (
+                <p className="text-primary-foreground/70 mb-1">{doc.qualification}</p>
+              )}
+              {doc.nmc_number && (
+                <p className="text-sm text-primary-foreground/60 mb-4">NMC No: {doc.nmc_number}</p>
+              )}
 
               {doctor.experience && (
                 <div className="mb-4">
                   <h3 className="font-semibold text-sm mb-1 text-primary-foreground/90">Experience</h3>
                   <p className="text-primary-foreground/70">{doctor.experience}</p>
+                </div>
+              )}
+
+              {doc.short_bio && (
+                <div className="mb-4">
+                  <h3 className="font-semibold text-sm mb-1 text-primary-foreground/90">Bio</h3>
+                  <p className="text-primary-foreground/70 leading-relaxed">{doc.short_bio}</p>
                 </div>
               )}
 
@@ -114,20 +125,20 @@ const DoctorDetail = () => {
                 </div>
               )}
 
+              <div className="flex flex-wrap gap-3 mb-4">
+                <Button variant="secondary" onClick={() => setAppointmentOpen(true)}>
+                  Book Appointment
+                </Button>
+              </div>
+
               <div className="flex flex-wrap gap-4">
                 {doctor.email && (
-                  <a
-                    href={`mailto:${doctor.email}`}
-                    className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline"
-                  >
+                  <a href={`mailto:${doctor.email}`} className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline">
                     <Mail className="h-4 w-4" /> {doctor.email}
                   </a>
                 )}
                 {doctor.phone && (
-                  <a
-                    href={`tel:${doctor.phone}`}
-                    className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline"
-                  >
+                  <a href={`tel:${doctor.phone}`} className="inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground hover:underline">
                     <Phone className="h-4 w-4" /> {doctor.phone}
                   </a>
                 )}
@@ -137,29 +148,24 @@ const DoctorDetail = () => {
         </div>
       </section>
 
-      {/* Other Doctors */}
       {otherDoctors && otherDoctors.length > 0 && (
         <section className="py-16 md:py-24">
           <div className="container">
             <h2 className="text-2xl md:text-3xl font-display font-bold mb-8">Other Specialists</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl">
-              {otherDoctors.map((doc) => (
-                <Link key={doc.id} to={`/doctors/${doc.id}`}>
+              {otherDoctors.map((d) => (
+                <Link key={d.id} to={`/doctors/${d.id}`}>
                   <Card className="overflow-hidden hover:shadow-md transition-shadow">
                     <div className="aspect-[3/4] bg-muted flex items-center justify-center">
-                      {doc.image_url ? (
-                        <img
-                          src={doc.image_url}
-                          alt={doc.full_name}
-                          className="w-full h-full object-cover"
-                        />
+                      {d.image_url ? (
+                        <img src={d.image_url} alt={d.full_name} className="w-full h-full object-cover" />
                       ) : (
                         <Users className="h-16 w-16 text-muted-foreground/20" />
                       )}
                     </div>
                     <CardContent className="p-4 text-center">
-                      <h3 className="font-semibold">{doc.full_name}</h3>
-                      <p className="text-sm text-muted-foreground">{doc.position}</p>
+                      <h3 className="font-semibold">{d.full_name}</h3>
+                      <p className="text-sm text-muted-foreground">{d.position}</p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -168,6 +174,8 @@ const DoctorDetail = () => {
           </div>
         </section>
       )}
+
+      <AppointmentModal open={appointmentOpen} onOpenChange={setAppointmentOpen} />
     </Layout>
   );
 };
