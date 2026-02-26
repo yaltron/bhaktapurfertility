@@ -14,7 +14,7 @@ export function Header() {
   return (
     <>
       {/* Top contact bar */}
-      <div className="hidden md:block bg-[hsl(187,49%,42%)] text-white text-sm">
+      <div className="hidden md:block bg-primary text-white text-sm">
         <div className="container flex items-center justify-between py-1.5">
           <div className="flex items-center gap-4">
             <a href={`tel:${CLINIC.phones[0]}`} className="flex items-center gap-1 hover:underline">
