@@ -32,6 +32,9 @@ interface DoctorForm {
   phone: string;
   image_url: string;
   display_order: number;
+  qualification: string;
+  nmc_number: string;
+  short_bio: string;
 }
 
 const emptyForm: DoctorForm = {
@@ -43,6 +46,9 @@ const emptyForm: DoctorForm = {
   phone: "",
   image_url: "",
   display_order: 0,
+  qualification: "",
+  nmc_number: "",
+  short_bio: "",
 };
 
 const AdminDoctors = () => {
@@ -116,6 +122,9 @@ const AdminDoctors = () => {
       phone: doc.phone || "",
       image_url: doc.image_url || "",
       display_order: doc.display_order || 0,
+      qualification: doc.qualification || "",
+      nmc_number: doc.nmc_number || "",
+      short_bio: doc.short_bio || "",
     });
     setDialogOpen(true);
   };
@@ -269,6 +278,30 @@ const AdminDoctors = () => {
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 />
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Qualification</Label>
+              <Input
+                value={form.qualification}
+                onChange={(e) => setForm((f) => ({ ...f, qualification: e.target.value }))}
+                placeholder="e.g. MBBS, MD (Obs/Gyn)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>NMC Number</Label>
+              <Input
+                value={form.nmc_number}
+                onChange={(e) => setForm((f) => ({ ...f, nmc_number: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Short Bio</Label>
+              <Textarea
+                value={form.short_bio}
+                onChange={(e) => setForm((f) => ({ ...f, short_bio: e.target.value }))}
+                rows={2}
+                placeholder="Brief one-liner for card view"
+              />
             </div>
             <div className="space-y-2">
               <Label>Display Order</Label>
