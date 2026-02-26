@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { CLINIC, NAV_LINKS, SERVICES } from "@/lib/constants";
+import logo from "@/assets/logo.png";
 
 export function Footer() {
   return (
@@ -9,9 +10,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* About */}
           <div className="lg:col-span-1">
-            <h3 className="text-lg font-display font-bold text-background mb-3">
-              {CLINIC.name}
-            </h3>
+            <div className="flex items-center gap-2 mb-3">
+              <img src={logo} alt={CLINIC.name} className="h-10 w-auto" />
+              <h3 className="text-lg font-display font-bold text-background">
+                {CLINIC.shortName}
+              </h3>
+            </div>
             <p className="text-sm text-background/70 leading-relaxed">
               Providing advanced fertility treatments and compassionate women's healthcare in Bhaktapur, Nepal.
             </p>
