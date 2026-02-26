@@ -57,8 +57,8 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(176,73%,38%)_0%,transparent_60%)] opacity-40" />
+      <section className="relative overflow-hidden bg-[hsl(187,49%,42%)] text-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(110,41%,54%)_0%,transparent_60%)] opacity-40" />
         <div className="container relative py-20 md:py-32 lg:py-40">
           <div className="max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-nepali font-bold leading-tight mb-6">
@@ -275,7 +275,7 @@ const Index = () => {
       </section>
 
       {/* Contact & Address Strip */}
-      <section className="py-12 bg-primary text-primary-foreground">
+      <section className="py-12 bg-[hsl(187,49%,42%)] text-white">
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
