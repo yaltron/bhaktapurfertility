@@ -199,32 +199,38 @@ export type Database = {
       }
       success_stories: {
         Row: {
+          content: string | null
           created_at: string
           description: string | null
           display_order: number | null
           id: string
           is_featured: boolean | null
           photo_url: string | null
+          slug: string
           title: string
           video_url: string | null
         }
         Insert: {
+          content?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
           id?: string
           is_featured?: boolean | null
           photo_url?: string | null
+          slug: string
           title: string
           video_url?: string | null
         }
         Update: {
+          content?: string | null
           created_at?: string
           description?: string | null
           display_order?: number | null
           id?: string
           is_featured?: boolean | null
           photo_url?: string | null
+          slug?: string
           title?: string
           video_url?: string | null
         }

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Phone } from "lucide-react";
+import { Users } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 import { AppointmentModal } from "@/components/AppointmentModal";
 
@@ -58,21 +59,23 @@ const SuccessStories = () => {
           ) : stories && stories.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {stories.map((story) => (
-                <Card key={story.id} className="overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-video bg-muted flex items-center justify-center">
-                    {story.photo_url ? (
-                      <img src={story.photo_url} alt={story.title} className="w-full h-full object-cover" />
-                    ) : story.video_url ? (
-                      <video src={story.video_url} className="w-full h-full object-cover" controls />
-                    ) : (
-                      <Users className="h-12 w-12 text-muted-foreground/20" />
-                    )}
-                  </div>
-                  <CardContent className="p-5">
-                    <h3 className="font-semibold text-lg mb-2">{story.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{story.description}</p>
-                  </CardContent>
-                </Card>
+                <Link key={story.id} to={`/success-stories/${story.slug}`}>
+                  <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="aspect-video bg-muted flex items-center justify-center">
+                      {story.photo_url ? (
+                        <img src={story.photo_url} alt={story.title} className="w-full h-full object-cover" />
+                      ) : story.video_url ? (
+                        <video src={story.video_url} className="w-full h-full object-cover" />
+                      ) : (
+                        <Users className="h-12 w-12 text-muted-foreground/20" />
+                      )}
+                    </div>
+                    <CardContent className="p-5">
+                      <h3 className="font-semibold text-lg mb-2">{story.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{story.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           ) : (

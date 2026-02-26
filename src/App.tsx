@@ -16,6 +16,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
 import SuccessStories from "./pages/SuccessStories";
+import SuccessStoryDetail from "./pages/SuccessStoryDetail";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/insights/:slug" element={<BlogPost />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/success-stories" element={<SuccessStories />} />
+            <Route path="/success-stories/:slug" element={<SuccessStoryDetail />} />
             <Route path="/faq" element={<FAQ />} />
 
             {/* Admin routes */}
