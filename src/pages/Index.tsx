@@ -57,9 +57,17 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-primary text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,hsl(110,35%,45%)_0%,transparent_60%)] opacity-30" />
-        <div className="container relative py-20 md:py-32 lg:py-40">
+      <section className="relative overflow-hidden bg-primary text-white min-h-[500px]">
+        <iframe
+          className="absolute inset-0 w-full h-full opacity-30 pointer-events-none scale-150"
+          src="https://www.youtube.com/embed/DzHMq7loLYc?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&rel=0&playlist=DzHMq7loLYc&modestbranding=1&iv_load_policy=3"
+          title="Background video"
+          allow="autoplay; encrypted-media"
+          frameBorder="0"
+          style={{ border: 0 }}
+        />
+        <div className="absolute inset-0 bg-black/50 z-[1]" />
+        <div className="container relative z-10 py-20 md:py-32 lg:py-40">
           <div className="max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-nepali font-bold leading-tight mb-6">
               {CLINIC.tagline}
