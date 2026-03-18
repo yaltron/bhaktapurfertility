@@ -74,6 +74,7 @@ const App = () => (
               <Route path="messages" element={<AdminMessages />} />
               <Route path="success-stories" element={<AdminSuccessStories />} />
               <Route path="faqs" element={<AdminFAQs />} />
+              <Route path="popup-banners" element={<AdminPopupBanners />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

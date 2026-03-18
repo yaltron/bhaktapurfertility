@@ -314,6 +314,7 @@ const Index = () => {
       </section>
 
       <AppointmentModal open={appointmentOpen} onOpenChange={setAppointmentOpen} />
+      <PopupBanner />
     </Layout>
   );
 };
