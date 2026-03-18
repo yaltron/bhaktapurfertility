@@ -1,25 +1,30 @@
 
 
-# Add YouTube Video Background to Hero Section
+# Add Two Admin User Accounts
 
 ## Approach
-Embed the YouTube video (`DzHMq7loLYc`) as a background iframe in the hero section with reduced opacity, overlaid with a dark/green tint so text remains readable.
+Create a one-time edge function using the Supabase Admin Auth API to safely create the two accounts and assign them admin roles. This handles duplicate prevention, secure password hashing (handled automatically by the auth system), and role assignment.
 
-**Note:** YouTube videos are embedded via iframe. To use as a background, the iframe will be positioned absolutely behind the hero content with `pointer-events-none` to prevent interaction, and opacity reduced. YouTube's embed URL with `autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=DzHMq7loLYc` will ensure seamless looping without controls.
+## Steps
 
-## Changes
+### 1. Create edge function `supabase/functions/create-admin-users/index.ts`
+- Uses `supabase.auth.admin.createUser()` to create each account with confirmed email
+- Inserts corresponding `admin` role in `user_roles` table
+- Checks for existing users first to prevent duplicates
+- Protected by service role key (server-side only)
 
-### `src/pages/Index.tsx` — Hero section (lines ~59-84)
-- Replace the radial gradient background with:
-  - A full-cover `iframe` (YouTube embed) positioned absolutely, with `opacity-30` and `pointer-events-none`
-  - A dark overlay div (`bg-black/50`) on top of the video for text contrast
-  - Keep existing text and buttons unchanged
-- Structure:
-  ```
-  <section className="relative overflow-hidden text-white">
-    <!-- YouTube iframe: absolute, full cover, opacity-30, pointer-events-none -->
-    <!-- Dark overlay: absolute, bg-black/50 -->
-    <!-- Content: relative z-10, unchanged -->
-  </section>
-  ```
+### 2. Deploy and invoke the edge function
+- Call it once to create both accounts
+- Verify success in response
+
+### 3. Clean up
+- Delete the edge function after use (it's a one-time setup task)
+
+## Accounts to create
+| Email | Role |
+|---|---|
+| yaltron.team@gmail.com | admin |
+| admin@bhaktapurfertility.com.np | admin |
+
+Passwords are hashed automatically by the auth system — never stored in plain text.
 
