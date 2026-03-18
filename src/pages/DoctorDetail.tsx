@@ -76,6 +76,7 @@ const DoctorDetail = () => {
 
   return (
     <Layout>
+      <SEO title={doctor.full_name} description={doctor.short_bio || `${doctor.full_name} — ${doctor.position}`} ogImage={doctor.image_url || undefined} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link

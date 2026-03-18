@@ -34,6 +34,7 @@ const Blog = () => {
 
   return (
     <Layout>
+      <SEO title="Insights & Blog" description={`Health insights, fertility tips, and expert articles from ${CLINIC.name}.`} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

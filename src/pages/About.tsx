@@ -28,6 +28,7 @@ const CLINIC_PHOTOS = [
 const About = () => {
   return (
     <Layout>
+      <SEO title="About Us" description={`Learn about ${CLINIC.name} — our mission, values, and commitment to fertility care in Nepal.`} />
       {/* Hero */}
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">

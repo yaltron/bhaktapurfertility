@@ -39,6 +39,7 @@ const ServiceDetail = () => {
 
   return (
     <Layout>
+      <SEO title={service.title} description={service.description} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link
