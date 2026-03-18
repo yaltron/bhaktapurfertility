@@ -43,6 +43,8 @@ interface BlogForm {
   cover_image_url: string;
   status: "draft" | "published";
   reading_time: number;
+  meta_title: string;
+  meta_description: string;
 }
 
 const emptyForm: BlogForm = {
@@ -55,6 +57,8 @@ const emptyForm: BlogForm = {
   cover_image_url: "",
   status: "draft",
   reading_time: 3,
+  meta_title: "",
+  meta_description: "",
 };
 
 const generateSlug = (title: string) =>
