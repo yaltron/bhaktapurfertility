@@ -10,7 +10,7 @@ interface SEOProps {
 }
 
 const DEFAULT_DESCRIPTION = `${CLINIC.shortName} — Nepal's trusted fertility clinic offering IVF, IUI, and women's wellness services in Bhaktapur.`;
-const DEFAULT_OG_IMAGE = "/favicon.ico";
+const DEFAULT_OG_IMAGE = "/favicon.png";
 
 export const SEO = ({
   title,
