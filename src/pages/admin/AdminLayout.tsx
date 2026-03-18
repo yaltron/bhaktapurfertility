@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Star,
   HelpCircle,
+  Image,
 } from "lucide-react";
 
 const NAV_ITEMS = [
