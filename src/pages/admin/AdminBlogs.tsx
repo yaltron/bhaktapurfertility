@@ -139,6 +139,8 @@ const AdminBlogs = () => {
       cover_image_url: blog.cover_image_url || "",
       status: blog.status,
       reading_time: blog.reading_time || 3,
+      meta_title: blog.meta_title || "",
+      meta_description: blog.meta_description || "",
     });
     setDialogOpen(true);
   };
