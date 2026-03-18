@@ -256,11 +256,11 @@ const AdminDoctors = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Image URL</Label>
-              <Input
+              <Label>Photo</Label>
+              <ImageUpload
                 value={form.image_url}
-                onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                placeholder="https://..."
+                onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
+                folder="doctors"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
