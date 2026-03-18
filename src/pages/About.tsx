@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
+import { SEO } from "@/components/SEO";
 
 const VALUES = [
   { icon: Heart, title: "Compassion", desc: "We treat every patient with empathy, dignity, and genuine care." },
@@ -27,6 +28,7 @@ const CLINIC_PHOTOS = [
 const About = () => {
   return (
     <Layout>
+      <SEO title="About Us" description={`Learn about ${CLINIC.name} — our mission, values, and commitment to fertility care in Nepal.`} />
       {/* Hero */}
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
+import { SEO } from "@/components/SEO";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { HelpCircle, Phone } from "lucide-react";
@@ -33,6 +34,7 @@ const FAQ = () => {
 
   return (
     <Layout>
+      <SEO title="FAQ" description={`Frequently asked questions about fertility treatments at ${CLINIC.name}.`} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

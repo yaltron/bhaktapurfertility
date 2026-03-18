@@ -10,6 +10,7 @@ import { AppointmentModal } from "@/components/AppointmentModal";
 import { PopupBanner } from "@/components/PopupBanner";
 import { CLINIC, SERVICES } from "@/lib/constants";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { SEO } from "@/components/SEO";
 
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope,
@@ -57,6 +58,7 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO description={`${CLINIC.name} — Nepal's trusted fertility clinic offering IVF, IUI, and women's wellness services in Bhaktapur.`} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-black text-white min-h-[60vh]">
         <iframe

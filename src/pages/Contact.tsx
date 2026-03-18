@@ -5,6 +5,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,6 +59,7 @@ const Contact = () => {
 
   return (
     <Layout>
+      <SEO title="Contact Us" description={`Get in touch with ${CLINIC.name}. Call, visit, or send us a message.`} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">

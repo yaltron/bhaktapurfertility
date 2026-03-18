@@ -43,6 +43,8 @@ interface BlogForm {
   cover_image_url: string;
   status: "draft" | "published";
   reading_time: number;
+  meta_title: string;
+  meta_description: string;
 }
 
 const emptyForm: BlogForm = {
@@ -55,6 +57,8 @@ const emptyForm: BlogForm = {
   cover_image_url: "",
   status: "draft",
   reading_time: 3,
+  meta_title: "",
+  meta_description: "",
 };
 
 const generateSlug = (title: string) =>
@@ -135,6 +139,8 @@ const AdminBlogs = () => {
       cover_image_url: blog.cover_image_url || "",
       status: blog.status,
       reading_time: blog.reading_time || 3,
+      meta_title: blog.meta_title || "",
+      meta_description: blog.meta_description || "",
     });
     setDialogOpen(true);
   };
@@ -290,6 +296,30 @@ const AdminBlogs = () => {
                 content={form.content}
                 onChange={(html) => setForm((f) => ({ ...f, content: html }))}
               />
+            </div>
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-semibold mb-3 text-muted-foreground">SEO (Optional)</p>
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Meta Title</Label>
+                  <Input
+                    value={form.meta_title}
+                    onChange={(e) => setForm((f) => ({ ...f, meta_title: e.target.value }))}
+                    placeholder="Custom title for search engines (defaults to post title)"
+                    maxLength={60}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Meta Description</Label>
+                  <Textarea
+                    value={form.meta_description}
+                    onChange={(e) => setForm((f) => ({ ...f, meta_description: e.target.value }))}
+                    placeholder="Custom description for search engines (defaults to excerpt)"
+                    rows={2}
+                    maxLength={160}
+                  />
+                </div>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

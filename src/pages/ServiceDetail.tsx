@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
+import { SEO } from "@/components/SEO";
 import { SERVICES, CLINIC } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +39,7 @@ const ServiceDetail = () => {
 
   return (
     <Layout>
+      <SEO title={service.title} description={service.description} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link

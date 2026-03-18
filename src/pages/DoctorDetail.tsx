@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Users, Mail, Phone } from "lucide-react";
@@ -75,6 +76,7 @@ const DoctorDetail = () => {
 
   return (
     <Layout>
+      <SEO title={doctor.full_name} description={doctor.short_bio || `${doctor.full_name} — ${doctor.position}`} ogImage={doctor.image_url || undefined} />
       <section className="bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container">
           <Link

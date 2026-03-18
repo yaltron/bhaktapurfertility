@@ -1,44 +1,25 @@
 
 
-# SEO Meta Tags for Blog Posts and Key Pages
+# Add YouTube Video Background to Hero Section
 
-## Overview
-Add dynamic meta tags (title, description, OG image) to blog detail pages and static meta tags to key public pages using `react-helmet-async`.
+## Approach
+Embed the YouTube video (`DzHMq7loLYc`) as a background iframe in the hero section with reduced opacity, overlaid with a dark/green tint so text remains readable.
+
+**Note:** YouTube videos are embedded via iframe. To use as a background, the iframe will be positioned absolutely behind the hero content with `pointer-events-none` to prevent interaction, and opacity reduced. YouTube's embed URL with `autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=DzHMq7loLYc` will ensure seamless looping without controls.
 
 ## Changes
 
-### 1. Install `react-helmet-async`
-Add the library for managing document head tags in React.
-
-### 2. `src/main.tsx`
-Wrap the app with `<HelmetProvider>` from `react-helmet-async`.
-
-### 3. `src/pages/BlogPost.tsx`
-Add a `<Helmet>` block with dynamic meta tags from the blog post data:
-- `<title>` — `{post.title} | {CLINIC.name}`
-- `<meta name="description">` — `{post.excerpt}`
-- `<meta property="og:title">`, `og:description`, `og:image` (from `cover_image_url`)
-- `<meta property="og:type" content="article">`
-- Twitter card meta tags
-
-### 4. `src/pages/Index.tsx`
-Add static `<Helmet>` with homepage title, description, and OG tags.
-
-### 5. Other key pages
-Add `<Helmet>` to: `About.tsx`, `Services.tsx`, `ServiceDetail.tsx`, `Doctors.tsx`, `DoctorDetail.tsx`, `Contact.tsx`, `Blog.tsx`, `SuccessStories.tsx`, `FAQ.tsx` — each with an appropriate title and description using `CLINIC.name`.
-
-### 6. `src/pages/admin/AdminBlogs.tsx` — Add SEO fields
-Add `meta_title` and `meta_description` fields to the blog form so admins can customize SEO per post. These override the defaults in `BlogPost.tsx` if provided.
-
-### 7. Database migration
-Add two nullable columns to `blogs` table:
-```sql
-ALTER TABLE public.blogs ADD COLUMN meta_title text;
-ALTER TABLE public.blogs ADD COLUMN meta_description text;
-```
-
-## Technical Notes
-- `react-helmet-async` is the maintained fork compatible with React 18
-- Blog SEO fields are optional — falls back to `title` and `excerpt` if not set
-- OG image falls back to a default site image if no cover image exists
+### `src/pages/Index.tsx` — Hero section (lines ~59-84)
+- Replace the radial gradient background with:
+  - A full-cover `iframe` (YouTube embed) positioned absolutely, with `opacity-30` and `pointer-events-none`
+  - A dark overlay div (`bg-black/50`) on top of the video for text contrast
+  - Keep existing text and buttons unchanged
+- Structure:
+  ```
+  <section className="relative overflow-hidden text-white">
+    <!-- YouTube iframe: absolute, full cover, opacity-30, pointer-events-none -->
+    <!-- Dark overlay: absolute, bg-black/50 -->
+    <!-- Content: relative z-10, unchanged -->
+  </section>
+  ```
 
