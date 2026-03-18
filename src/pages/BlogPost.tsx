@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { ArrowLeft, Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
