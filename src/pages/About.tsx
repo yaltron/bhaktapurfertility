@@ -2,6 +2,7 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
+import { SEO } from "@/components/SEO";
 
 const VALUES = [
   { icon: Heart, title: "Compassion", desc: "We treat every patient with empathy, dignity, and genuine care." },

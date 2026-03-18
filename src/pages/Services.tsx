@@ -6,6 +6,7 @@ import { CLINIC, SERVICES } from "@/lib/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Phone, Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope } from "lucide-react";
 import { AppointmentModal } from "@/components/AppointmentModal";
+import { SEO } from "@/components/SEO";
 
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope,

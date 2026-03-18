@@ -58,6 +58,7 @@ const Index = () => {
 
   return (
     <Layout>
+      <SEO description={`${CLINIC.name} — Nepal's trusted fertility clinic offering IVF, IUI, and women's wellness services in Bhaktapur.`} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-black text-white min-h-[60vh]">
         <iframe

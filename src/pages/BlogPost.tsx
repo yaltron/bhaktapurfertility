@@ -62,6 +62,12 @@ const BlogPost = () => {
 
   return (
     <Layout>
+      <SEO
+        title={(post as any).meta_title || post.title}
+        description={(post as any).meta_description || post.excerpt || ""}
+        ogImage={post.cover_image_url || undefined}
+        ogType="article"
+      />
       <article className="py-12 md:py-20">
         <div className="container max-w-3xl">
           <Link to="/insights" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
