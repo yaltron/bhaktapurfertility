@@ -53,6 +53,8 @@ export type Database = {
           created_at: string
           excerpt: string | null
           id: string
+          meta_description: string | null
+          meta_title: string | null
           publish_date: string | null
           reading_time: number | null
           slug: string
@@ -68,6 +70,8 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          meta_description?: string | null
+          meta_title?: string | null
           publish_date?: string | null
           reading_time?: number | null
           slug: string
@@ -83,6 +87,8 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          meta_description?: string | null
+          meta_title?: string | null
           publish_date?: string | null
           reading_time?: number | null
           slug?: string
