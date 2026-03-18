@@ -1,47 +1,25 @@
 
 
-# Image Upload System for Admin Panels
+# Add YouTube Video Background to Hero Section
 
-Replace all image URL text inputs with a file upload component across the admin CMS. The existing `clinic-images` storage bucket is already set up and public.
+## Approach
+Embed the YouTube video (`DzHMq7loLYc`) as a background iframe in the hero section with reduced opacity, overlaid with a dark/green tint so text remains readable.
 
-## Overview
+**Note:** YouTube videos are embedded via iframe. To use as a background, the iframe will be positioned absolutely behind the hero content with `pointer-events-none` to prevent interaction, and opacity reduced. YouTube's embed URL with `autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=DzHMq7loLYc` will ensure seamless looping without controls.
 
-Create a reusable `ImageUpload` component that handles file selection, preview, upload to storage, and deletion. Then integrate it into all four admin panels that use images.
+## Changes
 
-## Storage Setup
-
-**RLS policies needed** on `storage.objects` for the `clinic-images` bucket:
-- Allow authenticated admins (via `has_role`) to INSERT, UPDATE, DELETE files
-- Allow public SELECT (bucket is already public, but policy needed for RLS)
-
-## New Component
-
-### `src/components/admin/ImageUpload.tsx`
-Reusable image upload component with:
-- File input (accept images only) with drag-and-drop area
-- Image preview (shows current image or newly selected file)
-- Upload button that stores file to `clinic-images/{folder}/{timestamp}-{filename}`
-- Delete/replace functionality (trash icon to clear)
-- Props: `value` (current URL), `onChange` (callback with new URL), `folder` (subfolder like "doctors", "blogs", etc.)
-- Upload happens on file select, returns the public URL via `onChange`
-
-## Admin Panel Changes
-
-### `src/pages/admin/AdminDoctors.tsx`
-- Replace `Image URL` text input with `<ImageUpload folder="doctors" value={form.image_url} onChange={...} />`
-
-### `src/pages/admin/AdminBlogs.tsx`
-- Replace `Cover Image URL` text input with `<ImageUpload folder="blogs" value={form.cover_image_url} onChange={...} />`
-
-### `src/pages/admin/AdminSuccessStories.tsx`
-- Replace `Photo URL` text input with `<ImageUpload folder="stories" value={form.photo_url} onChange={...} />`
-
-## Database Migration
-- Add RLS policies on `storage.objects` for admin upload/delete access to the `clinic-images` bucket
-
-## Technical Details
-- Uses `supabase.storage.from('clinic-images').upload()` for uploading
-- Uses `supabase.storage.from('clinic-images').getPublicUrl()` for retrieving URLs
-- Files organized in subfolders: `doctors/`, `blogs/`, `stories/`
-- Existing URL-based images continue to work (component shows any valid URL)
+### `src/pages/Index.tsx` — Hero section (lines ~59-84)
+- Replace the radial gradient background with:
+  - A full-cover `iframe` (YouTube embed) positioned absolutely, with `opacity-30` and `pointer-events-none`
+  - A dark overlay div (`bg-black/50`) on top of the video for text contrast
+  - Keep existing text and buttons unchanged
+- Structure:
+  ```
+  <section className="relative overflow-hidden text-white">
+    <!-- YouTube iframe: absolute, full cover, opacity-30, pointer-events-none -->
+    <!-- Dark overlay: absolute, bg-black/50 -->
+    <!-- Content: relative z-10, unchanged -->
+  </section>
+  ```
 

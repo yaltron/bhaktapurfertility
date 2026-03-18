@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Star } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface StoryForm {
   title: string;
@@ -195,8 +196,12 @@ const AdminSuccessStories = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Photo URL</Label>
-                <Input value={form.photo_url} onChange={(e) => setForm((f) => ({ ...f, photo_url: e.target.value }))} placeholder="https://..." />
+                <Label>Photo</Label>
+                <ImageUpload
+                  value={form.photo_url}
+                  onChange={(url) => setForm((f) => ({ ...f, photo_url: url }))}
+                  folder="stories"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Video URL</Label>

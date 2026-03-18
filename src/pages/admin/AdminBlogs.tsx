@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface BlogForm {
   title: string;
@@ -268,11 +269,11 @@ const AdminBlogs = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Cover Image URL</Label>
-              <Input
+              <Label>Cover Image</Label>
+              <ImageUpload
                 value={form.cover_image_url}
-                onChange={(e) => setForm((f) => ({ ...f, cover_image_url: e.target.value }))}
-                placeholder="https://..."
+                onChange={(url) => setForm((f) => ({ ...f, cover_image_url: url }))}
+                folder="blogs"
               />
             </div>
             <div className="space-y-2">
