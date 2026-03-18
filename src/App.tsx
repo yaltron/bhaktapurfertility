@@ -28,6 +28,7 @@ import AdminAppointments from "./pages/admin/AdminAppointments";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSuccessStories from "./pages/admin/AdminSuccessStories";
 import AdminFAQs from "./pages/admin/AdminFAQs";
+import AdminPopupBanners from "./pages/admin/AdminPopupBanners";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="messages" element={<AdminMessages />} />
               <Route path="success-stories" element={<AdminSuccessStories />} />
               <Route path="faqs" element={<AdminFAQs />} />
+              <Route path="popup-banners" element={<AdminPopupBanners />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

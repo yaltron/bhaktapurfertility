@@ -197,6 +197,36 @@ export type Database = {
         }
         Relationships: []
       }
+      popup_banners: {
+        Row: {
+          created_at: string
+          display_seconds: number
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_seconds?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_seconds?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       success_stories: {
         Row: {
           content: string | null

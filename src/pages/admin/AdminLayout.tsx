@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Star,
   HelpCircle,
+  Image,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { to: "/admin/messages", icon: MessageSquare, label: "Messages", end: false },
   { to: "/admin/success-stories", icon: Star, label: "Success Stories", end: false },
   { to: "/admin/faqs", icon: HelpCircle, label: "FAQs", end: false },
+  { to: "/admin/popup-banners", icon: Image, label: "Popup Banners", end: false },
 ];
 
 const AdminLayout = () => {
