@@ -70,7 +70,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/50 z-[1]" />
         <div className="container relative z-10 py-16 md:py-32 lg:py-40">
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-nepali font-bold leading-tight mb-6">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-nepali font-bold leading-tight mb-6 drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>
               {CLINIC.tagline}
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/85 mb-8 max-w-lg leading-relaxed">
