@@ -10,6 +10,7 @@ import { AppointmentModal } from "@/components/AppointmentModal";
 import { PopupBanner } from "@/components/PopupBanner";
 import { CLINIC, SERVICES } from "@/lib/constants";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { SEO } from "@/components/SEO";
 
 const SERVICE_ICONS: Record<string, React.ElementType> = {
   Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope,
