@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface DoctorForm {
   full_name: string;
