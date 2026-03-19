@@ -116,15 +116,64 @@ const About = () => {
               A welcoming, patient-friendly environment designed for your comfort and care.
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {CLINIC_PHOTOS.map((photo) => (
-              <div key={photo.label} className="rounded-lg overflow-hidden bg-muted aspect-[4/3] flex flex-col items-center justify-center text-center p-6">
-                <Camera className="h-10 w-10 text-muted-foreground/30 mb-3" />
-                <h3 className="font-semibold text-sm mb-1">{photo.label}</h3>
-                <p className="text-xs text-muted-foreground">{photo.placeholder}</p>
+          {clinicPhotos.length === 0 ? (
+            <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-lg overflow-hidden bg-muted aspect-[4/3] flex flex-col items-center justify-center text-center p-6">
+                  <Camera className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="text-xs text-muted-foreground">Photos coming soon</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="relative max-w-5xl mx-auto">
+              {clinicPhotos.length > 3 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md hidden md:flex"
+                    onClick={() => scroll("left")}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md hidden md:flex"
+                    onClick={() => scroll("right")}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+              <div
+                ref={scrollRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 scrollbar-hide"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {clinicPhotos.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="flex-shrink-0 w-72 sm:w-80 snap-start rounded-lg overflow-hidden bg-card border shadow-sm"
+                  >
+                    <img
+                      src={photo.image_url}
+                      alt={photo.title || "Clinic"}
+                      className="w-full aspect-[4/3] object-cover"
+                      loading="lazy"
+                    />
+                    {(photo.title || photo.description) && (
+                      <div className="p-4">
+                        {photo.title && <h3 className="font-semibold text-sm mb-1">{photo.title}</h3>}
+                        {photo.description && <p className="text-xs text-muted-foreground">{photo.description}</p>}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
