@@ -21,12 +21,6 @@ const FACILITIES = [
   "Patient Counseling Area",
 ];
 
-const CLINIC_PHOTOS = [
-  { label: "Reception Area", placeholder: "Welcoming reception and waiting area" },
-  { label: "Treatment Rooms", placeholder: "Modern, well-equipped treatment rooms" },
-  { label: "Patient Area", placeholder: "Comfortable patient-friendly environment" },
-];
-
 const About = () => {
   return (
     <Layout>
