@@ -1,46 +1,25 @@
 
 
-# About Page Dynamic Photos + Appointment Email Notification
+# Add YouTube Video Background to Hero Section
 
-## Part 1: Dynamic "Our Centre" Photos on About Page
+## Approach
+Embed the YouTube video (`DzHMq7loLYc`) as a background iframe in the hero section with reduced opacity, overlaid with a dark/green tint so text remains readable.
 
-### Database
-Create a new `clinic_photos` table:
-```sql
-CREATE TABLE public.clinic_photos (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text,
-  description text,
-  image_url text NOT NULL,
-  display_order integer DEFAULT 0,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-ALTER TABLE public.clinic_photos ENABLE ROW LEVEL SECURITY;
--- Public read, admin CRUD policies
-```
+**Note:** YouTube videos are embedded via iframe. To use as a background, the iframe will be positioned absolutely behind the hero content with `pointer-events-none` to prevent interaction, and opacity reduced. YouTube's embed URL with `autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=DzHMq7loLYc` will ensure seamless looping without controls.
 
-### Admin Panel
-- New page `src/pages/admin/AdminClinicPhotos.tsx` with CRUD for clinic photos (image upload via existing `ImageUpload` component, optional title, description, ordering)
-- Add nav item "Clinic Photos" to `AdminLayout.tsx`
-- Add route in `App.tsx`
+## Changes
 
-### About Page Update
-- Replace the static `CLINIC_PHOTOS` array with a query to `clinic_photos` table
-- Render as a horizontal scrollable carousel instead of a grid — smooth scroll with overflow-x-auto and snap scrolling
-- Each card shows: image, title (if provided), description
-
-## Part 2: Appointment Email Notification
-
-### Edge Function
-Create `supabase/functions/notify-appointment/index.ts`:
-- Receives appointment data via POST
-- Sends a formatted HTML email to `admin@bhaktapurfertility.com.np` using the Lovable AI email capabilities
-- Includes: patient name, phone, email, preferred date, message
-
-### AppointmentModal Update
-- After successful insert into `appointment_requests`, invoke the `notify-appointment` edge function with the appointment details
-
-### Technical Notes
-- The edge function will use the `LOVABLE_API_KEY` secret (already configured) for sending email
-- Appointments are already stored and viewable in the admin dashboard — no changes needed there
+### `src/pages/Index.tsx` — Hero section (lines ~59-84)
+- Replace the radial gradient background with:
+  - A full-cover `iframe` (YouTube embed) positioned absolutely, with `opacity-30` and `pointer-events-none`
+  - A dark overlay div (`bg-black/50`) on top of the video for text contrast
+  - Keep existing text and buttons unchanged
+- Structure:
+  ```
+  <section className="relative overflow-hidden text-white">
+    <!-- YouTube iframe: absolute, full cover, opacity-30, pointer-events-none -->
+    <!-- Dark overlay: absolute, bg-black/50 -->
+    <!-- Content: relative z-10, unchanged -->
+  </section>
+  ```
 

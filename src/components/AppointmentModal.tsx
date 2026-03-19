@@ -69,6 +69,20 @@ export function AppointmentModal({ open, onOpenChange }: AppointmentModalProps) 
       toast.success("Appointment request submitted!", {
         description: "We'll get back to you shortly.",
       });
+
+      // Send email notification (fire-and-forget)
+      supabase.functions.invoke("notify-appointment", {
+        body: {
+          name: data.name,
+          phone: data.phone,
+          email: data.email || null,
+          preferred_date: data.preferred_date
+            ? format(data.preferred_date, "PPP")
+            : null,
+          message: data.message || null,
+        },
+      }).catch(() => {});
+
       form.reset();
       onOpenChange(false);
     } catch {

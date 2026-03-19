@@ -1,8 +1,10 @@
+import { useEffect, useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera } from "lucide-react";
+import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 import { SEO } from "@/components/SEO";
+import { supabase } from "@/integrations/supabase/client";
 
 const VALUES = [
   { icon: Heart, title: "Compassion", desc: "We treat every patient with empathy, dignity, and genuine care." },
@@ -19,13 +21,22 @@ const FACILITIES = [
   "Patient Counseling Area",
 ];
 
-const CLINIC_PHOTOS = [
-  { label: "Reception Area", placeholder: "Welcoming reception and waiting area" },
-  { label: "Treatment Rooms", placeholder: "Modern, well-equipped treatment rooms" },
-  { label: "Patient Area", placeholder: "Comfortable patient-friendly environment" },
-];
-
 const About = () => {
+  const [clinicPhotos, setClinicPhotos] = useState<{ id: string; title: string | null; description: string | null; image_url: string }[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase
+      .from("clinic_photos")
+      .select("id, title, description, image_url")
+      .order("display_order", { ascending: true })
+      .then(({ data }) => setClinicPhotos(data || []));
+  }, []);
+
+  const scroll = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
+  };
+
   return (
     <Layout>
       <SEO title="About Us" description={`Learn about ${CLINIC.name} — our mission, values, and commitment to fertility care in Nepal.`} />
@@ -105,15 +116,64 @@ const About = () => {
               A welcoming, patient-friendly environment designed for your comfort and care.
             </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {CLINIC_PHOTOS.map((photo) => (
-              <div key={photo.label} className="rounded-lg overflow-hidden bg-muted aspect-[4/3] flex flex-col items-center justify-center text-center p-6">
-                <Camera className="h-10 w-10 text-muted-foreground/30 mb-3" />
-                <h3 className="font-semibold text-sm mb-1">{photo.label}</h3>
-                <p className="text-xs text-muted-foreground">{photo.placeholder}</p>
+          {clinicPhotos.length === 0 ? (
+            <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-lg overflow-hidden bg-muted aspect-[4/3] flex flex-col items-center justify-center text-center p-6">
+                  <Camera className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                  <p className="text-xs text-muted-foreground">Photos coming soon</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="relative max-w-5xl mx-auto">
+              {clinicPhotos.length > 3 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md hidden md:flex"
+                    onClick={() => scroll("left")}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background shadow-md hidden md:flex"
+                    onClick={() => scroll("right")}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+              <div
+                ref={scrollRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 scrollbar-hide"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {clinicPhotos.map((photo) => (
+                  <div
+                    key={photo.id}
+                    className="flex-shrink-0 w-72 sm:w-80 snap-start rounded-lg overflow-hidden bg-card border shadow-sm"
+                  >
+                    <img
+                      src={photo.image_url}
+                      alt={photo.title || "Clinic"}
+                      className="w-full aspect-[4/3] object-cover"
+                      loading="lazy"
+                    />
+                    {(photo.title || photo.description) && (
+                      <div className="p-4">
+                        {photo.title && <h3 className="font-semibold text-sm mb-1">{photo.title}</h3>}
+                        {photo.description && <p className="text-xs text-muted-foreground">{photo.description}</p>}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
