@@ -29,6 +29,7 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminSuccessStories from "./pages/admin/AdminSuccessStories";
 import AdminFAQs from "./pages/admin/AdminFAQs";
 import AdminPopupBanners from "./pages/admin/AdminPopupBanners";
+import AdminClinicPhotos from "./pages/admin/AdminClinicPhotos";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();

@@ -1,8 +1,10 @@
+import { useEffect, useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera } from "lucide-react";
+import { Heart, Eye, Target, Building, Award, Handshake, Phone, Camera, ChevronLeft, ChevronRight } from "lucide-react";
 import { CLINIC } from "@/lib/constants";
 import { SEO } from "@/components/SEO";
+import { supabase } from "@/integrations/supabase/client";
 
 const VALUES = [
   { icon: Heart, title: "Compassion", desc: "We treat every patient with empathy, dignity, and genuine care." },

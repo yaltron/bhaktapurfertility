@@ -13,6 +13,7 @@ import {
   Star,
   HelpCircle,
   Image,
+  Camera,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { to: "/admin/success-stories", icon: Star, label: "Success Stories", end: false },
   { to: "/admin/faqs", icon: HelpCircle, label: "FAQs", end: false },
   { to: "/admin/popup-banners", icon: Image, label: "Popup Banners", end: false },
+  { to: "/admin/clinic-photos", icon: Camera, label: "Clinic Photos", end: false },
 ];
 
 const AdminLayout = () => {
