@@ -22,6 +22,21 @@ const FACILITIES = [
 ];
 
 const About = () => {
+  const [clinicPhotos, setClinicPhotos] = useState<{ id: string; title: string | null; description: string | null; image_url: string }[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    supabase
+      .from("clinic_photos")
+      .select("id, title, description, image_url")
+      .order("display_order", { ascending: true })
+      .then(({ data }) => setClinicPhotos(data || []));
+  }, []);
+
+  const scroll = (dir: "left" | "right") => {
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
+  };
+
   return (
     <Layout>
       <SEO title="About Us" description={`Learn about ${CLINIC.name} — our mission, values, and commitment to fertility care in Nepal.`} />
