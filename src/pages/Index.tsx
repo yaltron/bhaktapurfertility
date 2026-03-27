@@ -56,6 +56,18 @@ const Index = () => {
     },
   });
 
+  const { data: services } = useQuery({
+    queryKey: ["services-preview"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("*")
+        .order("display_order")
+        .limit(8);
+      return data ?? [];
+    },
+  });
+
   return (
     <Layout>
       <SEO description={`${CLINIC.name} — Nepal's trusted fertility clinic offering IVF, IUI, and women's wellness services in Bhaktapur.`} />
