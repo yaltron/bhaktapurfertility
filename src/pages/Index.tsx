@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppointmentModal } from "@/components/AppointmentModal";
 import { PopupBanner } from "@/components/PopupBanner";
-import { CLINIC, SERVICES } from "@/lib/constants";
+import { CLINIC } from "@/lib/constants";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { SEO } from "@/components/SEO";
 
