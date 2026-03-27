@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { CLINIC, NAV_LINKS, SERVICES } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { CLINIC, NAV_LINKS } from "@/lib/constants";
 import logo from "@/assets/logo.png";
 
 export function Footer() {
