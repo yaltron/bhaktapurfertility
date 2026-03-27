@@ -1,7 +1,9 @@
 import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/SEO";
-import { SERVICES, CLINIC } from "@/lib/constants";
+import { CLINIC } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Phone, Microscope, Flower2, HeartPulse, Monitor, Snowflake, Thermometer, TestTubes, Stethoscope } from "lucide-react";
@@ -16,8 +18,41 @@ const ServiceDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const [appointmentOpen, setAppointmentOpen] = useState(false);
 
-  const service = SERVICES.find((s) => s.slug === slug);
-  const otherServices = SERVICES.filter((s) => s.slug !== slug);
+  const { data: service, isLoading } = useQuery({
+    queryKey: ["service", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .eq("slug", slug!)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+  });
+
+  const { data: otherServices } = useQuery({
+    queryKey: ["services-other", slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .neq("slug", slug!)
+        .order("display_order");
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!slug,
+  });
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="py-20 text-center text-muted-foreground">Loading...</div>
+      </Layout>
+    );
+  }
 
   if (!service) {
     return (
@@ -83,10 +118,10 @@ const ServiceDetail = () => {
         <div className="container">
           <h2 className="text-2xl md:text-3xl font-display font-bold mb-8">Other Services</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {otherServices.map((s) => {
+            {otherServices?.map((s) => {
               const OtherIcon = SERVICE_ICONS[s.icon] || Stethoscope;
               return (
-                <Link key={s.slug} to={`/services/${s.slug}`}>
+                <Link key={s.id} to={`/services/${s.slug}`}>
                   <Card className="hover:shadow-md transition-shadow h-full">
                     <CardContent className="p-5">
                       <div className="flex items-start gap-3">
@@ -94,7 +129,7 @@ const ServiceDetail = () => {
                           <OtherIcon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-sm">{s.shortName}</h3>
+                          <h3 className="font-semibold text-sm">{s.short_name}</h3>
                           <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                             {s.description}
                           </p>

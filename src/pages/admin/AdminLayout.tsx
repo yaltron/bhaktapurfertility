@@ -14,10 +14,12 @@ import {
   HelpCircle,
   Image,
   Camera,
+  Briefcase,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+  { to: "/admin/services", icon: Briefcase, label: "Services", end: false },
   { to: "/admin/blogs", icon: FileText, label: "Blogs", end: false },
   { to: "/admin/doctors", icon: Users, label: "Doctors", end: false },
   { to: "/admin/appointments", icon: CalendarCheck, label: "Appointments", end: false },
