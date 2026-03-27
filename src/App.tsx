@@ -30,6 +30,7 @@ import AdminSuccessStories from "./pages/admin/AdminSuccessStories";
 import AdminFAQs from "./pages/admin/AdminFAQs";
 import AdminPopupBanners from "./pages/admin/AdminPopupBanners";
 import AdminClinicPhotos from "./pages/admin/AdminClinicPhotos";
+import AdminServices from "./pages/admin/AdminServices";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const App = () => (
               }
             >
               <Route index element={<AdminDashboard />} />
+              <Route path="services" element={<AdminServices />} />
               <Route path="blogs" element={<AdminBlogs />} />
               <Route path="doctors" element={<AdminDoctors />} />
               <Route path="appointments" element={<AdminAppointments />} />

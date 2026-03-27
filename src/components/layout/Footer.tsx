@@ -1,9 +1,19 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
-import { CLINIC, NAV_LINKS, SERVICES } from "@/lib/constants";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { CLINIC, NAV_LINKS } from "@/lib/constants";
 import logo from "@/assets/logo.png";
 
 export function Footer() {
+  const { data: services } = useQuery({
+    queryKey: ["services-footer"],
+    queryFn: async () => {
+      const { data } = await supabase.from("services").select("slug, short_name").order("display_order").limit(8);
+      return data ?? [];
+    },
+  });
+
   return (
     <footer className="bg-foreground text-background/90">
       <div className="container py-12 md:py-16">
@@ -46,13 +56,13 @@ export function Footer() {
               Key Services
             </h4>
             <ul className="space-y-2 text-sm text-background/70">
-              {SERVICES.map((s) => (
+              {(services ?? []).map((s) => (
                 <li key={s.slug}>
                   <Link
                     to={`/services/${s.slug}`}
                     className="hover:text-background transition-colors"
                   >
-                    {s.shortName}
+                    {s.short_name}
                   </Link>
                 </li>
               ))}

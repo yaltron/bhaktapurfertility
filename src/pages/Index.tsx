@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AppointmentModal } from "@/components/AppointmentModal";
 import { PopupBanner } from "@/components/PopupBanner";
-import { CLINIC, SERVICES } from "@/lib/constants";
+import { CLINIC } from "@/lib/constants";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { SEO } from "@/components/SEO";
 
@@ -52,6 +52,18 @@ const Index = () => {
         .select("*")
         .order("display_order")
         .limit(6);
+      return data ?? [];
+    },
+  });
+
+  const { data: services } = useQuery({
+    queryKey: ["services-preview"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("services")
+        .select("*")
+        .order("display_order")
+        .limit(8);
       return data ?? [];
     },
   });
@@ -107,7 +119,7 @@ const Index = () => {
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {SERVICES.map((s) => {
+            {(services ?? []).map((s) => {
               const Icon = SERVICE_ICONS[s.icon] || Stethoscope;
               return (
                 <Link key={s.slug} to={`/services/${s.slug}`}>
@@ -116,7 +128,7 @@ const Index = () => {
                       <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
                         <Icon className="h-6 w-6 text-primary" />
                       </div>
-                      <h3 className="font-semibold text-sm">{s.shortName}</h3>
+                      <h3 className="font-semibold text-sm">{s.short_name}</h3>
                     </CardContent>
                   </Card>
                 </Link>
