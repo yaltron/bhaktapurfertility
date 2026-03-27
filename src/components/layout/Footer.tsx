@@ -6,6 +6,14 @@ import { CLINIC, NAV_LINKS } from "@/lib/constants";
 import logo from "@/assets/logo.png";
 
 export function Footer() {
+  const { data: services } = useQuery({
+    queryKey: ["services-footer"],
+    queryFn: async () => {
+      const { data } = await supabase.from("services").select("slug, short_name").order("display_order").limit(8);
+      return data ?? [];
+    },
+  });
+
   return (
     <footer className="bg-foreground text-background/90">
       <div className="container py-12 md:py-16">
