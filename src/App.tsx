@@ -30,6 +30,7 @@ import AdminSuccessStories from "./pages/admin/AdminSuccessStories";
 import AdminFAQs from "./pages/admin/AdminFAQs";
 import AdminPopupBanners from "./pages/admin/AdminPopupBanners";
 import AdminClinicPhotos from "./pages/admin/AdminClinicPhotos";
+import AdminServices from "./pages/admin/AdminServices";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
