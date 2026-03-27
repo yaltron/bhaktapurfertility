@@ -56,13 +56,13 @@ export function Footer() {
               Key Services
             </h4>
             <ul className="space-y-2 text-sm text-background/70">
-              {SERVICES.map((s) => (
+              {(services ?? []).map((s) => (
                 <li key={s.slug}>
                   <Link
                     to={`/services/${s.slug}`}
                     className="hover:text-background transition-colors"
                   >
-                    {s.shortName}
+                    {s.short_name}
                   </Link>
                 </li>
               ))}
