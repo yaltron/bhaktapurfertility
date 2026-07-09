@@ -36,57 +36,62 @@ import AdminServices from "./pages/admin/AdminServices";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
+const MAINTENANCE_MODE = true;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <AuthProvider>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/:slug" element={<ServiceDetail />} />
-            <Route path="/doctors" element={<Doctors />} />
-            <Route path="/doctors/:id" element={<DoctorDetail />} />
-            <Route path="/insights" element={<Blog />} />
-            <Route path="/insights/:slug" element={<BlogPost />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/success-stories" element={<SuccessStories />} />
-            <Route path="/success-stories/:slug" element={<SuccessStoryDetail />} />
-            <Route path="/faq" element={<FAQ />} />
+      {MAINTENANCE_MODE ? (
+        <Maintenance />
+      ) : (
+        <BrowserRouter>
+          <ScrollToTop />
+          <AuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/services/:slug" element={<ServiceDetail />} />
+              <Route path="/doctors" element={<Doctors />} />
+              <Route path="/doctors/:id" element={<DoctorDetail />} />
+              <Route path="/insights" element={<Blog />} />
+              <Route path="/insights/:slug" element={<BlogPost />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/success-stories" element={<SuccessStories />} />
+              <Route path="/success-stories/:slug" element={<SuccessStoryDetail />} />
+              <Route path="/faq" element={<FAQ />} />
 
-            {/* Admin routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/reset-password" element={<AdminResetPassword />} />
-            <Route
-              path="/admin"
-              element={
-                <RequireAdmin>
-                  <AdminLayout />
-                </RequireAdmin>
-              }
-            >
-              <Route index element={<AdminDashboard />} />
-              <Route path="services" element={<AdminServices />} />
-              <Route path="blogs" element={<AdminBlogs />} />
-              <Route path="doctors" element={<AdminDoctors />} />
-              <Route path="appointments" element={<AdminAppointments />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="success-stories" element={<AdminSuccessStories />} />
-              <Route path="faqs" element={<AdminFAQs />} />
-              <Route path="popup-banners" element={<AdminPopupBanners />} />
-              <Route path="clinic-photos" element={<AdminClinicPhotos />} />
-            </Route>
+              {/* Admin routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAdmin>
+                    <AdminLayout />
+                  </RequireAdmin>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="services" element={<AdminServices />} />
+                <Route path="blogs" element={<AdminBlogs />} />
+                <Route path="doctors" element={<AdminDoctors />} />
+                <Route path="appointments" element={<AdminAppointments />} />
+                <Route path="messages" element={<AdminMessages />} />
+                <Route path="success-stories" element={<AdminSuccessStories />} />
+                <Route path="faqs" element={<AdminFAQs />} />
+                <Route path="popup-banners" element={<AdminPopupBanners />} />
+                <Route path="clinic-photos" element={<AdminClinicPhotos />} />
+              </Route>
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      )}
     </TooltipProvider>
   </QueryClientProvider>
 );
