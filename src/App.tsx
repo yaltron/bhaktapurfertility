@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { Maintenance } from "@/pages/Maintenance";
 
 import { Toaster as Sonner } from "@/components/ui/sonner";
