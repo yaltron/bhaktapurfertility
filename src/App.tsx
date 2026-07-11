@@ -36,7 +36,7 @@ import AdminServices from "./pages/admin/AdminServices";
 import AdminResetPassword from "./pages/admin/AdminResetPassword";
 
 const queryClient = new QueryClient();
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
